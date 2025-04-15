@@ -1,0 +1,51 @@
+# Maven target directory
+target/
+
+# NetBeans specific files
+nb-configuration.xml
+nbactions.xml
+nbproject/
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package Files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDE specific files
+# Eclipse
+.settings/
+.classpath
+.project
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# VS Code
+.vscode/
+.code-workspace
+
+# Docker related
+.env
+.docker/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+*~
+
+# Generated build files
+build/
+dist/
