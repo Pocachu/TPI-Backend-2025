@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL para pruebas
+  postgres-test:
+    image: postgres:14
+    container_name: tipicos-db-test
+    environment:
+      POSTGRES_DB: tipicos_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tipicos-test-network
+
+  # Aplicación OpenLiberty para pruebas
+  tipicos-app-test:
+    build: .
+    container_name: tipicos-app-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    ports:
+      - "9080:9080"
+      - "9443:9443"
+    environment:
+      - POSTGRES_HOST=postgres-test
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=tipicos_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    networks:
+      - tipicos-test-network
+
+networks:
+  tipicos-test-network:
+    driver: bridge

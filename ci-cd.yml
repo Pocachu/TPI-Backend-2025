@@ -1,0 +1,128 @@
+como Configuro GitHub Actions para CI/CD, le quiero mandar los soguientes parametros "
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      # Servicio PostgreSQL para pruebas
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: tipicos_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Initialize test database
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c "$(cat src/main/resources/db/init.sql)"
+
+      # Compilación del proyecto
+      - name: Build with Maven
+        run: mvn -B clean compile
+        
+      # PRUEBAS UNITARIAS (15%)
+      - name: Run Unit Tests
+        run: mvn -B test
+
+      # PRUEBAS DE COBERTURA (15%)
+      - name: Generate JaCoCo Coverage Report
+        run: mvn -B jacoco:report
+
+      - name: Upload JaCoCo Coverage Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-coverage-report
+          path: target/site/jacoco/
+
+      # PRUEBAS DE INTEGRACIÓN (15%)
+      - name: Run Integration Tests
+        run: mvn -B failsafe:integration-test
+
+      # PRUEBAS DE SISTEMA (15%)
+      - name: Build for System Tests
+        run: mvn -B package -DskipTests
+
+      - name: Set up test environment with Docker
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          # Esperar a que el servidor esté listo
+          sleep 30
+
+      - name: Run System Tests
+        run: mvn -B failsafe:verify -Dapi.url=http://localhost:9080/tipicos-tpi135/api
+        
+      - name: Shutdown test environment
+        run: docker-compose -f docker-compose.test.yml down
+
+      # Empaquetado final
+      - name: Package application
+        run: mvn -B package -DskipTests
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: application-war
+          path: target/tipicos-tpi135.war
+
+  # Tarea de despliegue (solo se ejecuta para la rama main)
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: application-war
+          path: target/
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          tags: tipicos-tpi135:latest
+          
+      - name: Archive Docker image
+        run: docker save tipicos-tpi135:latest > tipicos-image.tar
+        
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-image
+          path: tipicos-image.tar
+
+"
