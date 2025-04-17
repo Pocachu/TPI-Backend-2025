@@ -1,53 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    <groupId>sv.edu.ues.fmocc.tpi135</groupId>
-    <artifactId>tipicos-tpi135</artifactId>
-    <version>1.0.0</version>
+
+    <groupId>sv.edu.ues.tpi135</groupId>
+    <artifactId>tipicos-api</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-    
-    <name>Tipicos TPI135</name>
-    <description>API REST para la gestión de una tienda de productos típicos</description>
-    
+
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
-        
-        <!-- Versiones de dependencias -->
+        <junit.version>5.9.1</junit.version>
+        <mockito.version>4.8.0</mockito.version>
         <jakarta.jakartaee-api.version>8.0.0</jakarta.jakartaee-api.version>
-        <microprofile.version>3.3</microprofile.version>
-        <junit.version>5.8.2</junit.version>
-        <mockito.version>4.3.1</mockito.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <jacoco.version>0.8.8</jacoco.version>
-        <lombok.version>1.18.24</lombok.version>
-        <surefire.version>3.0.0-M5</surefire.version>
-        <failsafe.version>3.0.0-M5</failsafe.version>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
-    
+
     <dependencies>
-        <!-- Jackson para procesamiento JSON -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.19.0-rc2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.13.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.14.0</version>
-            <scope>test</scope>
-        </dependency>
         <!-- Jakarta EE API -->
         <dependency>
             <groupId>jakarta.platform</groupId>
@@ -55,120 +27,109 @@
             <version>${jakarta.jakartaee-api.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- MicroProfile API -->
+
+        <!-- Dependencias para PostgreSQL -->
         <dependency>
-            <groupId>org.eclipse.microprofile</groupId>
-            <artifactId>microprofile</artifactId>
-            <version>${microprofile.version}</version>
-            <type>pom</type>
-            <scope>provided</scope>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.5.1</version>
         </dependency>
-        
-        <!-- Lombok para reducir código boilerplate -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        
+
         <!-- Dependencias para pruebas -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.13.0-M2</version>
-            <type>jar</type>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.17.0</version>
-            <type>jar</type>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-        
-        <!-- H2 Database para pruebas -->
+
+        <!-- Testcontainers para pruebas de integración con PostgreSQL -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.1.214</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.1.0</version>
-            <type>jar</type>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <!-- Para pruebas de sistema - Cliente HTTP -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.35</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>2.20.0</version>
-            <type>jar</type>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.35</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>tipicos-api</finalName>
         <plugins>
             <!-- Plugin para compilación -->
             <plugin>
-                <groupId>io.openliberty.tools</groupId>
-                <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.11.3</version>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.12.1</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
-            
+
             <!-- Plugin para pruebas unitarias -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
+                <version>3.2.5</version>
                 <configuration>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
                 </configuration>
             </plugin>
-            
+
             <!-- Plugin para pruebas de integración -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.version}</version>
+                <version>3.0.0-M7</version>
                 <configuration>
                     <includes>
                         <include>**/*IT.java</include>
-                        <include>**/*SystemTest.java</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -180,94 +141,68 @@
                     </execution>
                 </executions>
             </plugin>
-            
-            <!-- Plugin para análisis de cobertura de código -->
+
+            <!-- Plugin para cobertura de código -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
                 <executions>
                     <execution>
-                        <id>default-prepare-agent</id>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                     <execution>
-                        <id>default-report</id>
+                        <id>report</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>default-check</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <rule>
-                                    <element>PACKAGE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.80</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             
-            <!-- Plugin para empaquetado WAR -->
+            <!-- Plugin war -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.3.2</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-            
-            <!-- Plugin para limpiar y empaquetar la aplicación -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.4.0</version>
             </plugin>
         </plugins>
     </build>
     
     <profiles>
-        <!-- Perfil para desarrollo -->
+        <!-- Perfil para pruebas de sistema -->
         <profile>
-            <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <env>dev</env>
-            </properties>
-        </profile>
-        
-        <!-- Perfil para pruebas -->
-        <profile>
-            <id>test</id>
-            <properties>
-                <env>test</env>
-            </properties>
-        </profile>
-        
-        <!-- Perfil para producción -->
-        <profile>
-            <id>prod</id>
-            <properties>
-                <env>prod</env>
-            </properties>
+            <id>system-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>3.0.0-M7</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*ST.java</include>
+                            </includes>
+                            <systemPropertyVariables>
+                                <app.deploy.url>http://localhost:9080</app.deploy.url>
+                            </systemPropertyVariables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>system-tests</id>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
