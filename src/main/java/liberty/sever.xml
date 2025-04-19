@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Servidor para aplicación de Típicos">
+    <!-- Habilitación de características -->
+    <featureManager>
+        <feature>jakartaee-8.0</feature>
+        <feature>microProfile-3.3</feature>
+    </featureManager>
+
+    <!-- Configuración HTTP -->
+    <httpEndpoint id="defaultHttpEndpoint"
+                  httpPort="9080"
+                  httpsPort="9443" />
+
+    <!-- Configuración de la aplicación web -->
+    <webApplication location="${project.artifactId}.war"
+                    contextRoot="/${app.context.root}" />
+
+    <!-- Configuración de la base de datos PostgreSQL -->
+    <dataSource id="TipicosDataSource" jndiName="jdbc/tipicosDB">
+        <jdbcDriver libraryRef="PostgreSQLLib" />
+        <properties.postgresql serverName="${DB_SERVER}"
+                              portNumber="${DB_PORT}"
+                              databaseName="${DB_NAME}"
+                              user="${DB_USER}"
+                              password="${DB_PASSWORD}" />
+    </dataSource>
+    
+    <library id="PostgreSQLLib">
+        <fileset dir="${server.config.dir}/lib" includes="postgresql-*.jar" />
+    </library>
+    
+    <!-- Variables para configuración de la base de datos -->
+    <variable name="DB_SERVER" defaultValue="localhost" />
+    <variable name="DB_PORT" defaultValue="5432" />
+    <variable name="DB_NAME" defaultValue="tipicos" />
+    <variable name="DB_USER" defaultValue="postgres" />
+    <variable name="DB_PASSWORD" defaultValue="postgres" />
+</server>
