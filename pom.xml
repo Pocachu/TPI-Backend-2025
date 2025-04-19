@@ -11,12 +11,16 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+        
+        <!-- Versiones de dependencias -->
+        <jakartaee.version>8.0.0</jakartaee.version>
         <junit.version>5.9.1</junit.version>
         <mockito.version>4.8.0</mockito.version>
-        <jakarta.jakartaee-api.version>8.0.0</jakarta.jakartaee-api.version>
-        <testcontainers.version>1.17.6</testcontainers.version>
-        <jacoco.version>0.8.8</jacoco.version>
+        <testcontainers.version>1.17.2</testcontainers.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>11</maven.compiler.release>
+        <jacoco.version>0.8.11</jacoco.version>
     </properties>
 
     <dependencies>
@@ -82,7 +86,12 @@
         </dependency>
         
         <!-- Para pruebas de sistema - Cliente HTTP -->
-
+        <dependency>
+            <groupId>io.openliberty</groupId>
+            <artifactId>openliberty-runtime</artifactId>
+            <version>21.0.0.12</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile</groupId>
             <artifactId>microprofile</artifactId>
@@ -190,6 +199,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
             </plugin>
+            
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
