@@ -20,13 +20,14 @@ services:
       timeout: 5s
       retries: 5
 
-  # Servidor Open Liberty
+  # Servidor GlassFish
   app:
     build: .
     container_name: tipicos-app
     ports:
-      - 9080:9080
-      - 9443:9443
+      - 8080:8080  # Puerto HTTP
+      - 4848:4848  # Puerto Admin
+      - 8181:8181  # Puerto HTTPS
     environment:
       - DB_SERVER=postgres
       - DB_PORT=5432

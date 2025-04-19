@@ -1,33 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
-             version="3.0">
-    
+<persistence version="2.2" 
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
     <persistence-unit name="TipicosPU" transaction-type="JTA">
-        <jta-data-source>jdbc/tipicosDB</jta-data-source>
-        
-        <!-- Entidades mapeadas -->
-        <class>com.tuempresa.tipicos.entity.Producto</class>
-        <class>com.tuempresa.tipicos.entity.TipoProducto</class>
-        <class>com.tuempresa.tipicos.entity.ProductoDetalle</class>
-        <class>com.tuempresa.tipicos.entity.ProductoPrecio</class>
-        <class>com.tuempresa.tipicos.entity.Combo</class>
-        <class>com.tuempresa.tipicos.entity.ComboDetalle</class>
-        <class>com.tuempresa.tipicos.entity.Orden</class>
-        <class>com.tuempresa.tipicos.entity.OrdenDetalle</class>
-        <class>com.tuempresa.tipicos.entity.Pago</class>
-        <class>com.tuempresa.tipicos.entity.PagoDetalle</class>
-        
+        <jta-data-source>jdbc/TipicosDS</jta-data-source>
+        <class>sv.edu.ues.fmocc.tpi135.entity.Producto</class>
         <properties>
-            <!-- Propiedades de Hibernate -->
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-            
-            <!-- Solo para desarrollo - no usar en producción -->
-            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="javax.persistence.schema-generation.database.action" value="none"/>
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+            <!-- Propiedades específicas de EclipseLink (implementación JPA de GlassFish) -->
+            <property name="eclipselink.ddl-generation" value="none"/>
         </properties>
     </persistence-unit>
-    
 </persistence>

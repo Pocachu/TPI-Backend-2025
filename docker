@@ -1,23 +1,19 @@
-FROM icr.io/appcafe/open-liberty:full-java17-openj9-ubi
+FROM payara/server-full:5.2022.2-jdk11
 
-# Copiar el driver de PostgreSQL
-COPY --chown=1001:0 postgresql-42.6.0.jar /opt/ol/wlp/usr/shared/resources/
+# Variables de entorno
+ENV DB_SERVER=postgres     DB_PORT=5432     DB_NAME=tipicos     DB_USER=postgres     DB_PASSWORD=postgres
 
-# Copiar el archivo server.xml
-COPY --chown=1001:0 src/main/liberty/config/server.xml /config/
+# Copiar el driver de PostgreSQL al directorio de librerías
+COPY postgresql-42.5.1.jar /glassfish/domains/domain1/lib/
 
-# Copiar el archivo de aplicación WAR
-COPY --chown=1001:0 target/*.war /config/apps/
+# Copiar la aplicación WAR al directorio de despliegue automático
+COPY target/tipicos-api.war 
 
-# Configuración de variables de entorno
-ENV DB_SERVER=postgres
-ENV DB_PORT=5432
-ENV DB_NAME=tipicos
-ENV DB_USER=postgres
-ENV DB_PASSWORD=postgres
+# Exponer puertos
+EXPOSE 8080 4848 8181
 
-# Configuración del servidor para pruebas de salud
-HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:9080/health || exit 1
+# Healthcheck para verificar que el servidor esté funcionando
+HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:8080/tipicos-api/api/productos || exit 1
 
-# Puerto para la aplicación
-EXPOSE 9080 9443
+# Comando para iniciar el servidor
+CMD [start-domain, -v]

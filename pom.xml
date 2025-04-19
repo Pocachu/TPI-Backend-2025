@@ -11,11 +11,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failOnMissingWebXml>false</failOnMissingWebXml>  
-        <!-- Otras propiedades... -->
+        <failOnMissingWebXml>false</failOnMissingWebXml>
         
         <!-- Versiones de dependencias -->
-        <jakartaee.version>10.0.0</jakartaee.version>
+        <jakartaee.version>8.0.0</jakartaee.version>
         <junit.version>5.9.1</junit.version>
         <mockito.version>4.8.0</mockito.version>
         <testcontainers.version>1.17.2</testcontainers.version>
@@ -30,7 +29,7 @@
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
             <version>8.0.0</version>
-            <type>jar</type>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Dependencias para PostgreSQL -->
@@ -68,8 +67,8 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
+            <version>5.17.0</version>
+            <type>jar</type>
         </dependency>
 
         <!-- Testcontainers para pruebas de integración con PostgreSQL -->
@@ -88,41 +87,33 @@
         
         <!-- Para pruebas de sistema - Cliente HTTP -->
         <dependency>
-            <groupId>io.openliberty</groupId>
-            <artifactId>openliberty-runtime</artifactId>
-            <version>21.0.0.12</version>
-            <type>zip</type>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.35</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.microprofile</groupId>
-            <artifactId>microprofile</artifactId>
-            <version>6.0</version>
-            <type>pom</type>
-            <scope>provided</scope>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.35</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>2.20.0</version>
-            <type>jar</type>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>2.35</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.1</version>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
             <version>1.17.6</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.19.0-rc2</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.platform</groupId>
-            <artifactId>jakarta.jakartaee-core-api</artifactId>
-            <version>10.0.0</version>
-            <type>jar</type>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -131,13 +122,13 @@
         <plugins>
             <!-- Plugin para compilación -->
             <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.11.0</version>
-            <configuration>
-                <release>21</release>
-            </configuration>
-        </plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <release>11</release>
+                </configuration>
+            </plugin>
 
             <!-- Plugin para pruebas unitarias -->
             <plugin>
@@ -198,18 +189,31 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
             </plugin>
             
+            <!-- Plugin para GlassFish -->
             <plugin>
-                <groupId>io.openliberty.tools</groupId>
-                <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.8.2</version>
+                <groupId>org.glassfish.maven.plugin</groupId>
+                <artifactId>maven-glassfish-plugin</artifactId>
+                <version>2.1</version>
                 <configuration>
-                    <serverName>tipicosServer</serverName>
-                    <include>runnable</include>
-                    <bootstrapProperties>
-                        <app.context.root>${project.artifactId}</app.context.root>
-                    </bootstrapProperties>
+                    <glassfishDirectory>${glassfish.home}</glassfishDirectory>
+                    <user>admin</user>
+                    <passwordFile>${glassfish.home}/domains/domain1/config/admin-keyfile</passwordFile>
+                    <domain>
+                        <name>domain1</name>
+                        <httpPort>8080</httpPort>
+                        <adminPort>4848</adminPort>
+                    </domain>
+                    <components>
+                        <component>
+                            <name>${project.artifactId}</name>
+                            <artifact>${project.build.directory}/${project.build.finalName}.war</artifact>
+                        </component>
+                    </components>
                 </configuration>
             </plugin>
         </plugins>
@@ -264,7 +268,7 @@
                                 <include>**/*ST.java</include>
                             </includes>
                             <systemPropertyVariables>
-                                <app.deploy.url>http://localhost:9080</app.deploy.url>
+                                <app.deploy.url>http://localhost:8080</app.deploy.url>
                             </systemPropertyVariables>
                         </configuration>
                         <executions>

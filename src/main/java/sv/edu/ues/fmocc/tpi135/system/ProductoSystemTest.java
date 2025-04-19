@@ -275,5 +275,4 @@ public class ProductoSystemTest {
         assertEquals(404, response.statusCode(), "El producto no debería existir después de ser eliminado");
         
         System.out.println("Verificado: el producto ya no existe después de eliminar");
-    }
-}
+    }}
