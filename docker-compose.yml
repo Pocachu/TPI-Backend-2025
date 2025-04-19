@@ -4,9 +4,9 @@ services:
     image: postgres:16
     container_name: tipicos-db
     environment:
-      POSTGRES_DB: tipicos
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tipicos_tpi135
+      POSTGRES_USER: gerardo
+      POSTGRES_PASSWORD: 1235
     ports:
       - 5432:5432
     volumes:
