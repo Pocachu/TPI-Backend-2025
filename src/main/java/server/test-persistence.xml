@@ -6,6 +6,7 @@
     <persistence-unit name="TipicosPUTest" transaction-type="RESOURCE_LOCAL">
         <class>sv.edu.ues.fmocc.tpi135.entity.Producto</class>
         <class>sv.edu.ues.fmocc.tpi135.entity.TipoProducto</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.Combo</class>
         <properties>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/tipicos_test"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
