@@ -1,22 +1,25 @@
 # TPI Backend 2025
 Sistema de gestión para restaurante de comida típica, como proyecto para la materia tecnicas de programacion en internet 2025, creado por Gerardo Alfonso Avila Marroquin
 
-# Tipicos TPI135 - API REST
+# Tipicos TPI135 - API REST Backend
 
-Este proyecto implementa una API REST para la gestión de una tienda de productos típicos salvadoreños, desarrollado como parte del curso TPI135 2025.
+Este proyecto implementa una API REST para la gestión de un restaurante de comida típica salvadoreña, desarrollado como parte del curso TPI135 2025. El sistema permite la gestión de productos, tipos de productos, combos y sus detalles, órdenes y pagos.
+
+## Autor
+Gerardo Alfonso Avila Marroquin
 
 ## Tecnologías utilizadas
 
 - Java 11
-- Maven
 - Jakarta EE 8
 - MicroProfile 3.3
-- OpenLiberty
-- PostgreSQL
-- Docker
-- JUnit 5
-- Mockito
-- JaCoCo
+- OpenLiberty/GlassFish
+- PostgreSQL 14
+- Docker y Docker Compose
+- Maven
+- JUnit 5 + Mockito
+- JaCoCo (para cobertura de código)
+- Jenkins (para pipeline CI/CD)
 
 ## Estructura del proyecto
 
@@ -27,6 +30,15 @@ El proyecto sigue una arquitectura de N-Capas:
 - **Repository**: Maneja la persistencia de datos
 - **Entity**: Define las entidades JPA
 - **DTO**: Objetos de transferencia de datos
+
+## Características implementadas
+
+- CRUD completo para Productos
+- CRUD completo para Tipos de Productos
+- CRUD completo para Combos
+- Búsqueda por diferentes criterios (nombre, estado)
+- Validaciones de datos
+- Pipeline CI/CD con pruebas automatizadas
 
 ## Requisitos previos
 
@@ -39,7 +51,7 @@ El proyecto sigue una arquitectura de N-Capas:
 
 1. Clone el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/tipicos-tpi135.git
+   git clone https://github.com/pocachu/tipicos-tpi135.git
    cd tipicos-tpi135
    ```
 
@@ -54,7 +66,9 @@ El proyecto sigue una arquitectura de N-Capas:
    ```
 
 4. Acceda a la aplicación:
-   http://localhost:9080/tipicos-tpi135/api/productos
+   ```
+   http://localhost:8080/tipicos-api/api/productos
+   ```
 
 ## Endpoints disponibles
 
@@ -68,12 +82,32 @@ El proyecto sigue una arquitectura de N-Capas:
 - `PUT /api/productos/{id}` - Actualiza un producto existente
 - `DELETE /api/productos/{id}` - Elimina un producto
 
+### Tipos de Productos
+
+- `GET /api/tipos-productos` - Lista todos los tipos de productos
+- `GET /api/tipos-productos?nombre={nombre}` - Filtra tipos de productos por nombre
+- `GET /api/tipos-productos?activo={true|false}` - Filtra tipos de productos por estado
+- `GET /api/tipos-productos/{id}` - Obtiene un tipo de producto por su ID
+- `POST /api/tipos-productos` - Crea un nuevo tipo de producto
+- `PUT /api/tipos-productos/{id}` - Actualiza un tipo de producto existente
+- `DELETE /api/tipos-productos/{id}` - Elimina un tipo de producto
+
+### Combos
+
+- `GET /api/combos` - Lista todos los combos
+- `GET /api/combos?nombre={nombre}` - Filtra combos por nombre
+- `GET /api/combos?activo={true|false}` - Filtra combos por estado
+- `GET /api/combos/{id}` - Obtiene un combo por su ID
+- `POST /api/combos` - Crea un nuevo combo
+- `PUT /api/combos/{id}` - Actualiza un combo existente
+- `DELETE /api/combos/{id}` - Elimina un combo
+
 ## Ejemplos de uso
 
 ### Crear un producto
 
 ```bash
-curl -X POST http://localhost:9080/tipicos-tpi135/api/productos \
+curl -X POST http://localhost:8080/tipicos-api/api/productos \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "Yuca Frita",
@@ -85,13 +119,13 @@ curl -X POST http://localhost:9080/tipicos-tpi135/api/productos \
 ### Obtener un producto
 
 ```bash
-curl http://localhost:9080/tipicos-tpi135/api/productos/1
+curl http://localhost:8080/tipicos-api/api/productos/1
 ```
 
 ### Actualizar un producto
 
 ```bash
-curl -X PUT http://localhost:9080/tipicos-tpi135/api/productos/1 \
+curl -X PUT http://localhost:8080/tipicos-api/api/productos/1 \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "Yuca Frita con Chicharrón",
@@ -103,10 +137,12 @@ curl -X PUT http://localhost:9080/tipicos-tpi135/api/productos/1 \
 ### Eliminar un producto
 
 ```bash
-curl -X DELETE http://localhost:9080/tipicos-tpi135/api/productos/1
+curl -X DELETE http://localhost:8080/tipicos-api/api/productos/1
 ```
 
-## Ejecución de pruebas
+## Pruebas
+
+El proyecto incluye cuatro tipos de pruebas:
 
 ### Pruebas unitarias
 
@@ -136,31 +172,27 @@ mvn failsafe:verify -Dapi.url=http://localhost:9080/tipicos-tpi135/api
 docker-compose -f docker-compose.test.yml down
 ```
 
-## Pipeline de CI/CD
+## Pipeline CI/CD
 
-El proyecto incluye un archivo de configuración para GitHub Actions que ejecuta:
+El proyecto incluye configuración para CI/CD tanto en GitHub Actions como en Jenkins:
 
+### Jenkins
+
+El archivo `Jenkinsfile` en la raíz del proyecto configura un pipeline que ejecuta:
 1. Compilación del proyecto
 2. Pruebas unitarias
 3. Análisis de cobertura
 4. Pruebas de integración
 5. Pruebas de sistema
-6. Generación de artefactos Docker
+6. Generación del artefacto final
 
-La configuración se encuentra en `.github/workflows/ci-cd.yml`.
+### GitHub Actions
 
-## Diagramas
+El archivo `.github/workflows/ci-cd.yml` configura un workflow similar al de Jenkins.
 
-### Diagrama de arquitectura
+## Base de datos
 
-```
-┌───────────────┐    ┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-│   Controller  │    │    Service    │    │   Repository  │    │   Database    │
-│   (REST API)  │───►│  (Business)   │───►│   (Data)      │───►│  (PostgreSQL) │
-└───────────────┘    └───────────────┘    └───────────────┘    └───────────────┘
-```
-
-### Diagrama de entidades
+La estructura de la base de datos sigue el siguiente esquema:
 
 ```
 ┌───────────────┐     ┌───────────────┐     ┌───────────────┐
@@ -171,22 +203,31 @@ La configuración se encuentra en `.github/workflows/ci-cd.yml`.
                                             ┌──────┴────────┐
                                             │ProductoPrecio │
                                             └───────────────┘
+                                                   ▲
+                                                   │
+                      ┌────────┐           ┌──────┴────────┐
+                      │  Pago  │◄─────────►│OrdenDetalle   │
+                      └────────┘           └───────────────┘
+                          ▲                       ▲
+                          │                       │
+                      ┌───┴────┐           ┌─────┴───────┐
+                      │PagoDetail│         │   Orden     │
+                      └────────┘           └─────────────┘
+
+┌─────────┐     ┌──────────────┐
+│  Combo  │◄────┤ComboDetalle  │
+└─────────┘     └──────────────┘
 ```
 
-## Contribución
+## Dockerización
 
-1. Fork el repositorio
-2. Cree una rama para su característica (`git checkout -b feature/nueva-caracteristica`)
-3. Haga commit de sus cambios (`git commit -am 'Agrega nueva característica'`)
-4. Haga push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Cree un nuevo Pull Request
+El proyecto incluye archivos Docker y Docker Compose para facilitar el despliegue:
+
+- `Dockerfile`: Para construir la imagen de la aplicación
+- `docker-compose.yml`: Para ejecutar la aplicación junto con PostgreSQL
+- `docker-compose.test.yml`: Configuración específica para pruebas
+
 
 ## Licencia
 
 Este proyecto está licenciado bajo la Licencia MIT - vea el archivo [LICENSE](LICENSE) para más detalles.
-
-## Equipo de desarrollo
-
-- Nombre del Estudiante 1 (Carnet)
-- Nombre del Estudiante 2 (Carnet)
-- Nombre del Estudiante 3 (Carnet)
