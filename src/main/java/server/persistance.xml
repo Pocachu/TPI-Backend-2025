@@ -6,12 +6,11 @@
     <persistence-unit name="TipicosPU" transaction-type="JTA">
         <jta-data-source>jdbc/TipicosDS</jta-data-source>
         <class>sv.edu.ues.fmocc.tpi135.entity.Producto</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.TipoProducto</class>
         <properties>
             <property name="javax.persistence.schema-generation.database.action" value="none"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
-            <!-- Propiedades específicas de EclipseLink (implementación JPA de GlassFish) -->
-            <property name="eclipselink.ddl-generation" value="none"/>
         </properties>
     </persistence-unit>
 </persistence>
