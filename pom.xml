@@ -14,12 +14,12 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         
         <!-- Versiones de dependencias -->
-        <jakartaee.version>8.0.0</jakartaee.version>
+        <jakartaee.version>10.0.0</jakartaee.version>
         <junit.version>5.9.1</junit.version>
         <mockito.version>4.8.0</mockito.version>
         <testcontainers.version>1.17.2</testcontainers.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>21</maven.compiler.release>
         <jacoco.version>0.8.11</jacoco.version>
     </properties>
 
