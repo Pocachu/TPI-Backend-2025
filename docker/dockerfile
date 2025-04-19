@@ -1,3 +1,4 @@
+docker
 FROM payara/server-full:5.2022.2-jdk11
 
 # Variables de entorno
