@@ -11,10 +11,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
+        <failOnMissingWebXml>false</failOnMissingWebXml>  
+        <!-- Otras propiedades... -->
         
         <!-- Versiones de dependencias -->
-        <jakartaee.version>8.0.0</jakartaee.version>
+        <jakartaee.version>10.0.0</jakartaee.version>
         <junit.version>5.9.1</junit.version>
         <mockito.version>4.8.0</mockito.version>
         <testcontainers.version>1.17.2</testcontainers.version>
@@ -130,14 +131,13 @@
         <plugins>
             <!-- Plugin para compilación -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+            <configuration>
+                <release>21</release>
+            </configuration>
+        </plugin>
 
             <!-- Plugin para pruebas unitarias -->
             <plugin>
