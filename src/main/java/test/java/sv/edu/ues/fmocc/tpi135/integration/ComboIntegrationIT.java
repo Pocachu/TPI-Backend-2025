@@ -9,7 +9,7 @@ import sv.edu.ues.fmocc.tpi135.controller.ComboController;
 import sv.edu.ues.fmocc.tpi135.dto.ComboDTO;
 import sv.edu.ues.fmocc.tpi135.entity.Combo;
 import sv.edu.ues.fmocc.tpi135.repository.ComboRepository;
-import sv.edu.ues.fmocc.tpi135.repository.ComboRepositoryImpl;
+import test.java.sv.edu.ues.fmocc.tpi135.repository.ComboRepositoryImpl;
 import sv.edu.ues.fmocc.tpi135.service.ComboService;
 import sv.edu.ues.fmocc.tpi135.service.ComboServiceImpl;
 

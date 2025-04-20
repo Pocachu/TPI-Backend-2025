@@ -9,7 +9,7 @@ import sv.edu.ues.fmocc.tpi135.controller.ProductoController;
 import sv.edu.ues.fmocc.tpi135.dto.ProductoDTO;
 import sv.edu.ues.fmocc.tpi135.entity.Producto;
 import sv.edu.ues.fmocc.tpi135.repository.ProductoRepository;
-import sv.edu.ues.fmocc.tpi135.repository.ProductoRepositoryImpl;
+import test.java.sv.edu.ues.fmocc.tpi135.repository.ProductoRepositoryImpl;
 import sv.edu.ues.fmocc.tpi135.service.ProductoService;
 import sv.edu.ues.fmocc.tpi135.service.ProductoServiceImpl;
 
