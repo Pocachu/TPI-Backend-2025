@@ -5,10 +5,10 @@ services:
     container_name: tipicos-db
     environment:
       POSTGRES_DB: tipicos_tpi135
-      POSTGRES_USER: gerardo
-      POSTGRES_PASSWORD: 1235
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres  
     ports:
-      - 5432:5432
+      - 5433:5432 
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./tipicos_tpi135_2025.sql:/docker-entrypoint-initdb.d/init.sql
@@ -17,19 +17,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
+  
   # Servidor GlassFish
   app:
     build: .
     container_name: tipicos-app
     ports:
-      - 8080:8080  # Puerto HTTP
-      - 4848:4848  # Puerto Admin
-      - 8181:8181  # Puerto HTTPS
+      - 9080:8080  # Puerto HTTP
+      - 4849:4848  # Puerto Admin
+      - 8182:8181  # Puerto HTTPS
     environment:
       - DB_SERVER=postgres
       - DB_PORT=5432
-      - DB_NAME=tipicos
+      - DB_NAME=tipicos_tpi135
       - DB_USER=postgres
       - DB_PASSWORD=postgres
     depends_on:

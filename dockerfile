@@ -1,14 +1,13 @@
-docker
 FROM payara/server-full:5.2022.2-jdk11
 
 # Variables de entorno
-ENV DB_SERVER=postgres     DB_PORT=5432     DB_NAME=tipicos     DB_USER=postgres     DB_PASSWORD=postgres
+ENV DB_SERVER=postgres DB_PORT=5432 DB_NAME=tipicos_tpi135 DB_USER=postgres DB_PASSWORD=postgres
 
 # Copiar el driver de PostgreSQL al directorio de librerías
 COPY postgresql-42.5.1.jar /glassfish/domains/domain1/lib/
 
 # Copiar la aplicación WAR al directorio de despliegue automático
-COPY target/tipicos-api.war 
+COPY target/tipicos-api.war /glassfish/domains/domain1/autodeploy/
 
 # Exponer puertos
 EXPOSE 8080 4848 8181
@@ -17,4 +16,4 @@ EXPOSE 8080 4848 8181
 HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:8080/tipicos-api/api/productos || exit 1
 
 # Comando para iniciar el servidor
-CMD [start-domain, -v]
+CMD ["start-domain", "-v"]
