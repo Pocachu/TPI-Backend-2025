@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.repository;
+package test.java.sv.edu.ues.fmocc.tpi135.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +12,7 @@ import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import sv.edu.ues.fmocc.tpi135.entity.OrdenDetalle;
 import sv.edu.ues.fmocc.tpi135.entity.OrdenDetallePK;
+import sv.edu.ues.fmocc.tpi135.repository.OrdenDetalleRepository;
 
 /**
  * Implementación de OrdenDetalleRepository para operaciones CRUD con JPA

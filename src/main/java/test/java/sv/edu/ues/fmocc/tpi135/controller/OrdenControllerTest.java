@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.controller;
+package test.java.sv.edu.ues.fmocc.tpi135.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ public class OrdenControllerTest {
     private OrdenService ordenService;
 
     @InjectMocks
-    private OrdenController ordenController;
+    private sv.edu.ues.fmocc.tpi135.controller.OrdenController ordenController;
 
     private OrdenDTO ordenDTO;
     private OrdenDetalleDTO detalleDTO;

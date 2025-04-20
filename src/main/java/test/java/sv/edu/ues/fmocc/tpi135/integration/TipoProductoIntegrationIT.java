@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.integration;
+package test.java.sv.edu.ues.fmocc.tpi135.integration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

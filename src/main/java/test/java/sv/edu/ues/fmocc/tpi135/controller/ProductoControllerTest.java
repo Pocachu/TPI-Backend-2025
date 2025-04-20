@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.controller;
+package test.java.sv.edu.ues.fmocc.tpi135.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class ProductoControllerTest {
     private ProductoService productoService;
 
     @InjectMocks
-    private ProductoController productoController;
+    private sv.edu.ues.fmocc.tpi135.controller.ProductoController productoController;
 
     private ProductoDTO productoDTO;
 

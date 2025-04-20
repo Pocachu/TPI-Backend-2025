@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.repository;
+package test.java.sv.edu.ues.fmocc.tpi135.repository;
 
 import java.util.Date;
 import java.util.List;
@@ -9,6 +9,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import sv.edu.ues.fmocc.tpi135.entity.Orden;
+import sv.edu.ues.fmocc.tpi135.repository.OrdenRepository;
 
 /**
  * Implementación de OrdenRepository para operaciones CRUD con JPA

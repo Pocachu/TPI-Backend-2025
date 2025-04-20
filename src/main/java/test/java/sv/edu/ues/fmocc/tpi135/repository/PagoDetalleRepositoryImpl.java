@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.repository;
+package test.java.sv.edu.ues.fmocc.tpi135.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +11,7 @@ import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import sv.edu.ues.fmocc.tpi135.entity.PagoDetalle;
+import sv.edu.ues.fmocc.tpi135.repository.PagoDetalleRepository;
 
 /**
  * Implementación de PagoDetalleRepository para operaciones CRUD con JPA

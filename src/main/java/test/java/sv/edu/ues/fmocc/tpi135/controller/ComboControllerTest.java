@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.controller;
+package test.java.sv.edu.ues.fmocc.tpi135.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class ComboControllerTest {
     private ComboService comboService;
 
     @InjectMocks
-    private ComboController comboController;
+    private sv.edu.ues.fmocc.tpi135.controller.ComboController comboController;
 
     private ComboDTO comboDTO;
 

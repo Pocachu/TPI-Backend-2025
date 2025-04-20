@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.repository;
+package test.java.sv.edu.ues.fmocc.tpi135.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +8,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import sv.edu.ues.fmocc.tpi135.entity.Combo;
+import sv.edu.ues.fmocc.tpi135.repository.ComboRepository;
 
 /**
  * Implementación de ComboRepository para operaciones CRUD con JPA

@@ -1,4 +1,4 @@
-package sv.edu.ues.fmocc.tpi135.controller;
+package test.java.sv.edu.ues.fmocc.tpi135.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ public class PagoControllerTest {
     private PagoService pagoService;
 
     @InjectMocks
-    private PagoController pagoController;
+    private sv.edu.ues.fmocc.tpi135.controller.PagoController pagoController;
 
     private PagoDTO pagoDTO;
     private PagoDetalleDTO pagoDetalleDTO;
