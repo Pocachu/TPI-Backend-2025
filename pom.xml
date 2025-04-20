@@ -117,14 +117,12 @@
         </dependency>
         
 
-        <dependencies>
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.18.38</version>
                 <scope>provided</scope>
             </dependency>
-        </dependencies>
 
         <dependency>
             <groupId>cn.fxbin.bubble</groupId>
