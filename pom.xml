@@ -115,8 +115,20 @@
             <version>1.17.6</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.26</version> 
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.fxbin.bubble</groupId>
+            <artifactId>bubble-fireworks-core</artifactId>
+            <version>2022.0.1</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
-
+    
     <build>
         <finalName>tipicos-api</finalName>
         <plugins>
