@@ -5,7 +5,8 @@ ENV DB_SERVER=postgres \
     DB_PORT=5432 \
     DB_NAME=tipicos_tpi135 \
     DB_USER=postgres \
-    DB_PASSWORD=postgres
+    DB_PASSWORD=postgres \
+    SCRIPT_DIR=/opt/payara/scripts
 
 # Copiar el driver de PostgreSQL al directorio de librerías
 COPY postgresql-42.5.1.jar ${PAYARA_DIR}/glassfish/domains/domain1/lib/
