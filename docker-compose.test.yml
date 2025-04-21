@@ -31,7 +31,7 @@ services:
       postgres-test:
         condition: service_healthy
     ports:
-      - "9080:8080"  # Puerto HTTP (diferente del principal para evitar conflictos)
+      - "8080:8080"  # Puerto HTTP (diferente del principal para evitar conflictos)
       - "4849:4848"  # Puerto Admin
       - "8182:8181"  # Puerto HTTPS
     environment:

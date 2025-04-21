@@ -27,11 +27,11 @@ fi
 
 # Detener y eliminar contenedores existentes si los hay
 echo -e "${YELLOW}Limpiando entorno de pruebas anterior...${NC}"
-docker-compose -f docker-compose.test.yml down -v 2>/dev/null || true
+docker compose -f docker-compose.test.yml down -v 2>/dev/null || true
 
 # Iniciar los contenedores de prueba
 echo -e "${YELLOW}Iniciando entorno de pruebas...${NC}"
-docker-compose -f docker-compose.test.yml up -d
+docker compose -f docker-compose.test.yml up -d
 
 # Esperar a que la aplicación esté lista
 echo -e "${YELLOW}Esperando a que la aplicación esté disponible...${NC}"
@@ -49,8 +49,8 @@ done
 
 if [ $count -eq $MAX_RETRIES ]; then
   echo -e "${RED}Error: La aplicación no está disponible después de $MAX_RETRIES intentos.${NC}"
-  docker-compose -f docker-compose.test.yml logs app-test
-  docker-compose -f docker-compose.test.yml down -v
+  docker compose -f docker-compose.test.yml logs app-test
+  docker compose -f docker-compose.test.yml down -v
   exit 1
 fi
 
@@ -64,12 +64,12 @@ test_result=$?
 # Mostrar logs si hay fallos
 if [ $test_result -ne 0 ]; then
   echo -e "${RED}Las pruebas de sistema han fallado. Mostrando logs:${NC}"
-  docker-compose -f docker-compose.test.yml logs
+  docker compose -f docker-compose.test.yml logs
 fi
 
 # Detener los contenedores
 echo -e "${YELLOW}Limpiando entorno de pruebas...${NC}"
-docker-compose -f docker-compose.test.yml down -v
+docker compose -f docker-compose.test.yml down -v
 
 # Mostrar resultado final
 if [ $test_result -eq 0 ]; then
