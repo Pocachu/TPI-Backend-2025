@@ -116,7 +116,8 @@ public class PagoServiceTest {
         assertEquals(pagoDTO.getMetodoPago(), resultado.getMetodoPago());
         assertEquals(pagoDTO.getReferencia(), resultado.getReferencia());
 
-        verify(ordenRepository, times(1)).encontrarPorId(1L);
+        // Verificamos que el método se llame 2 veces (1 en el método principal y 1 en mapToDTO)
+        verify(ordenRepository, times(2)).encontrarPorId(1L);
         verify(pagoRepository, times(1)).crear(any(Pago.class));
         verify(pagoDetalleRepository, times(1)).crear(any(PagoDetalle.class));
     }
@@ -148,7 +149,8 @@ public class PagoServiceTest {
         assertNotNull(resultado);
         assertEquals(pagoDTO.getIdPago(), resultado.getIdPago());
 
-        verify(ordenRepository, times(1)).encontrarPorId(1L);
+        // Verificamos que el método se llame 2 veces (1 en el método principal y 1 en mapToDTO)
+        verify(ordenRepository, times(2)).encontrarPorId(1L);
         verify(pagoRepository, times(1)).crear(any(Pago.class));
         verify(pagoDetalleRepository, never()).crear(any(PagoDetalle.class));
     }
@@ -232,8 +234,10 @@ public class PagoServiceTest {
         assertNotNull(resultado);
         assertEquals(2L, pagoEntity.getIdOrden()); // Verificar que se actualizó el campo
 
+        // Verificamos que el método se llame para el ID de orden 2 (dos veces)
         verify(pagoRepository, times(1)).encontrarPorId(1L);
-        verify(ordenRepository, times(1)).encontrarPorId(2L);
+        verify(ordenRepository, times(2)).encontrarPorId(2L); // Se llama 2 veces: en actualizar y en mapToDTO
+        // La verificación de ordenRepository.encontrarPorId(1L) se elimina ya que no se llama en este caso
         verify(pagoRepository, times(1)).actualizar(any(Pago.class));
     }
 
@@ -404,4 +408,5 @@ public class PagoServiceTest {
 
         verify(pagoDetalleRepository, times(1)).eliminarPorIdPago(999L);
         verify(pagoRepository, times(1)).eliminar(999L);
-    }}
+    }
+}
