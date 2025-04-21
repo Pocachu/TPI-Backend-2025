@@ -14,13 +14,16 @@
         <failOnMissingWebXml>false</failOnMissingWebXml>
         
         <!-- Versiones de dependencias -->
-        <jakartaee.version>10.0.0</jakartaee.version>
-        <junit.version>5.9.1</junit.version>
-        <mockito.version>4.8.0</mockito.version>
+        <jakartaee.version>8.0.0</jakartaee.version>
+        <junit.version>5.13.0-M2</junit.version>
+        <mockito.version>5.17.0</mockito.version>
         <testcontainers.version>1.17.2</testcontainers.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>11</maven.compiler.release>
+        <jersey.version>2.35</jersey.version>
+        <jackson.version>2.14.1</jackson.version>
+        <postgresql.version>42.5.1</postgresql.version>
+        <lombok.version>1.18.38</lombok.version>
         <jacoco.version>0.8.11</jacoco.version>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
     <dependencies>
@@ -28,7 +31,7 @@
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
-            <version>8.0.0</version>
+            <version>${jakartaee.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -36,15 +39,15 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.5.1</version>
+            <version>${postgresql.version}</version>
         </dependency>
 
-        <!-- Dependencias para pruebas -->
+        <!-- Dependencias para pruebas - JUnit Jupiter - Manteniendo versiones originales -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.13.0-M2</version>
-            <type>jar</type>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -58,17 +61,19 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- Mockito para pruebas - Manteniendo versiones originales -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.17.0</version>
-            <type>jar</type>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>5.17.0</version>
-            <type>jar</type>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Testcontainers para pruebas de integración con PostgreSQL -->
@@ -84,51 +89,58 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
         
-        <!-- Para pruebas de sistema - Cliente HTTP -->
+        <!-- Para pruebas de sistema - Cliente HTTP Jersey -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
-            <version>2.35</version>
+            <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
-            <version>2.35</version>
+            <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.inject</groupId>
             <artifactId>jersey-hk2</artifactId>
-            <version>2.35</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.17.6</version>
+            <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
         
+        <!-- Jackson para serialización/deserialización JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
+        <!-- Lombok para reducir el código boilerplate -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-
+        
+        <!-- Añadimos la dependencia original que podría ser necesaria -->
         <dependency>
             <groupId>cn.fxbin.bubble</groupId>
             <artifactId>bubble-fireworks-core</artifactId>
             <version>2022.0.1</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
     
@@ -141,11 +153,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
                 <configuration>
+                    <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
+                            <version>${lombok.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -237,7 +250,6 @@
                     </components>
                 </configuration>
             </plugin>
-            
         </plugins>
     </build>
     
