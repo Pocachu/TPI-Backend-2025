@@ -56,7 +56,7 @@ fi
 
 # Ejecutar pruebas de sistema
 echo -e "${YELLOW}Ejecutando pruebas de sistema...${NC}"
-mvn verify -P system-tests -Dapi.url=http://localhost:8080/tipicos-api/api
+mvn -e verify -P system-tests -Dapi.url=http://localhost:8080/tipicos-api/api
 
 # Capturar el resultado
 test_result=$?

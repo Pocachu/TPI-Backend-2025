@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,7 +68,7 @@ public class ProductoSystemTest {
                     isReady = true;
                     System.out.println("Aplicación disponible!");
                 }
-            } catch (Exception e) {
+            } catch (IOException | InterruptedException e) {
                 System.out.println("La aplicación aún no está disponible. Reintentando...");
             }
             
