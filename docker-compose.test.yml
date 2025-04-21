@@ -1,47 +1,3 @@
-services:
-  # Base de datos PostgreSQL para pruebas
-  postgres-test:
-    image: postgres:14
-    container_name: tipicos-db-test
-    environment:
-      POSTGRES_DB: tipicos_test
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - 5432:5432
-    volumes:
-      - ./src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: [CMD-SHELL, pg_isready -U postgres]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - tipicos-test-network
-
-  # Aplicación GlassFish para pruebas
-  tipicos-app-test:
-    build: .
-    container_name: tipicos-app-test
-    depends_on:
-      postgres-test:
-        condition: service_healthy
-    ports:
-      - 8080:8080
-      - 4848:4848
-      - 8181:8181
-    environment:
-      - DB_SERVER=postgres-test
-      - DB_PORT=5432
-      - DB_NAME=tipicos_test
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-    networks:
-      - tipicos-test-network
-
-networks:
-  tipicos-test-network:
-    driver: bridge
 version: '3.8'
 
 services:
@@ -54,11 +10,11 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - 5432:5432
+      - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: [CMD-SHELL, pg_isready -U postgres]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -66,22 +22,27 @@ services:
       - tipicos-test-network
 
   # Aplicación para pruebas
-  tipicos-app-test:
-    build: .
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
     container_name: tipicos-app-test
     depends_on:
       postgres-test:
         condition: service_healthy
     ports:
-      - 8080:8080
-      - 4848:4848
-      - 8181:8181
+      - "9080:8080"  # Puerto HTTP (diferente del principal para evitar conflictos)
+      - "4849:4848"  # Puerto Admin
+      - "8182:8181"  # Puerto HTTPS
     environment:
       - DB_SERVER=postgres-test
       - DB_PORT=5432
       - DB_NAME=tipicos_test
       - DB_USER=postgres
       - DB_PASSWORD=postgres
+      - JAVA_TOOL_OPTIONS=-Dapi.url=http://app-test:8080/tipicos-api/api
+    volumes:
+      - ./target/tipicos-api.war:/opt/payara/deployments/tipicos-api.war
     networks:
       - tipicos-test-network
 

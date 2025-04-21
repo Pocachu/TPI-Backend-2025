@@ -1,0 +1,24 @@
+FROM payara/server-full:5.2022.5-jdk11
+
+# Configurar variables de entorno
+ENV DB_SERVER=postgres     DB_PORT=5432     DB_NAME=tipicos_tpi135     DB_USER=postgres     DB_PASSWORD=postgres
+
+# Copiar el driver de PostgreSQL al directorio de librerías
+COPY postgresql-42.5.1.jar /glassfish/domains/domain1/lib/
+
+# Copiar configuraciones personalizadas si es necesario
+COPY src/main/resources/META-INF/persistence.xml /glassfish/domains/domain1/config/
+
+# Crear el directorio de despliegue si no existe
+RUN mkdir -p 
+
+# Copiar la aplicación WAR al directorio de despliegue automático
+# (Este archivo será montado como volumen desde docker-compose)
+# COPY target/tipicos-api.war /
+
+# Configurar datasource por si es necesario
+COPY setup-datasource.sh /
+RUN chmod +x /setup-datasource.sh
+
+# Ajustar el comando de inicio para configurar DataSource antes de iniciar el servidor
+CMD [bin/entrypoint.sh]
