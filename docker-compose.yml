@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile
     container_name: tipicos-app
     ports:
-      - "9080:8080"  # Puerto HTTP
+      - "8080:8080"  # Puerto HTTP
       - "4848:4848"  # Puerto Admin
       - "8181:8181"  # Puerto HTTPS
     environment:
