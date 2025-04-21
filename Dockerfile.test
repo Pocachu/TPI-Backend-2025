@@ -10,7 +10,7 @@ COPY postgresql-42.5.1.jar /glassfish/domains/domain1/lib/
 COPY src/main/resources/META-INF/persistence.xml /glassfish/domains/domain1/config/
 
 # Crear el directorio de despliegue si no existe
-RUN mkdir -p 
+RUN mkdir -p ${DEPLOY_DIR}
 
 # Copiar la aplicación WAR al directorio de despliegue automático
 # (Este archivo será montado como volumen desde docker-compose)
@@ -18,7 +18,7 @@ RUN mkdir -p
 
 # Configurar datasource por si es necesario
 COPY setup-datasource.sh /
-RUN chmod +x /setup-datasource.sh
+RUN chmod +x ${SCRIPT_DIR}/setup-datasource.sh
 
 # Ajustar el comando de inicio para configurar DataSource antes de iniciar el servidor
 CMD [bin/entrypoint.sh]
