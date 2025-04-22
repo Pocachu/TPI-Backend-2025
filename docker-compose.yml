@@ -1,15 +1,19 @@
+version: '3.8'
+
 services:
-  postgres-test:
+  # Base de datos PostgreSQL
+  postgres:
     image: postgres:14
     container_name: tipicos-db
     environment:
-      POSTGRES_DB: tipicos
+      POSTGRES_DB: tipicos_tpi135
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432" # Evitar conflicto con PostgreSQL local
+      - "5433:5432"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+      - ./tipicos_tpi135_2025.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -18,34 +22,33 @@ services:
     networks:
       - tipicos-network
 
-  app-test:
+  # Servidor de aplicaciones
+  tipicos-app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: tipicos-app
     depends_on:
-      postgres-test:
+      postgres:
         condition: service_healthy
     ports:
-      - "9080:8080" # Evitar conflicto con otras aplicaciones
-      - "4848:4848" # Puerto Admin
+      - "8080:8080"  # Puerto HTTP
+      - "4848:4848"  # Puerto Admin
+      - "8181:8181"  # Puerto HTTPS
     environment:
       - DB_SERVER=postgres
       - DB_PORT=5432
-      - DB_NAME=tipicos
+      - DB_NAME=tipicos_tpi135
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - JAVA_TOOL_OPTIONS=-Dapi.url=http://localhost:9080/tipicos-api/api
-    volumes:
-      - ./target/tipicos-api.war:/opt/payara/deployments/tipicos-api.war
     networks:
       - tipicos-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9080/tipicos-api/api/productos"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
+    volumes:
+      - ./target/tipicos-api.war:/opt/payara/deployments/tipicos-api.war
 
 networks:
-  tipicos-test-network:
+  tipicos-network:
     driver: bridge
+
+volumes:
+  postgres-data:

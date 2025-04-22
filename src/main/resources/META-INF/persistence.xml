@@ -6,10 +6,23 @@
     <persistence-unit name="TipicosPU" transaction-type="JTA">
         <jta-data-source>jdbc/TipicosDS</jta-data-source>
         <class>sv.edu.ues.fmocc.tpi135.entity.Producto</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.TipoProducto</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.ProductoDetalle</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.ProductoPrecio</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.Combo</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.ComboDetalle</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.Orden</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.OrdenDetalle</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.OrdenDetallePK</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.Pago</class>
+        <class>sv.edu.ues.fmocc.tpi135.entity.PagoDetalle</class>
         <properties>
             <property name="javax.persistence.schema-generation.database.action" value="none"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
+            <!-- Propiedades adicionales para la conexión -->
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="eclipselink.target-database" value="PostgreSQL"/>
         </properties>
     </persistence-unit>
 </persistence>

@@ -3,12 +3,15 @@
 <resources>
     <jdbc-connection-pool name="TipicosDBPool" 
                           res-type="javax.sql.DataSource" 
-                          datasource-classname="org.postgresql.ds.PGSimpleDataSource">
-        <property name="serverName" value="${DB_SERVER}"/>
-        <property name="portNumber" value="${DB_PORT}"/>
-        <property name="databaseName" value="${DB_NAME}"/>
-        <property name="User" value="${DB_USER}"/>
-        <property name="Password" value="${DB_PASSWORD}"/>
+                          datasource-classname="org.postgresql.ds.PGSimpleDataSource"
+                          ping="true">
+        <property name="serverName" value="${DB_SERVER:localhost}"/>
+        <property name="portNumber" value="${DB_PORT:5432}"/>
+        <property name="databaseName" value="${DB_NAME:tipicos_tpi135}"/>
+        <property name="User" value="${DB_USER:postgres}"/>
+        <property name="Password" value="${DB_PASSWORD:postgres}"/>
+        <property name="URL" value="jdbc:postgresql://${DB_SERVER:localhost}:${DB_PORT:5432}/${DB_NAME:tipicos_tpi135}"/>
+        <property name="driverClass" value="org.postgresql.Driver"/>
     </jdbc-connection-pool>
     
     <jdbc-resource jndi-name="jdbc/TipicosDS" pool-name="TipicosDBPool"/>
