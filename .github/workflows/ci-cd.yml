@@ -98,38 +98,3 @@ jobs:
         with:
           name: application-war
           path: target/tipicos-api.war
-
-  # Tarea de despliegue (solo se ejecuta para la rama main)
-  deploy:
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Download WAR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: application-war
-          path: target/
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: false # Consider changing to true if you want to push the image to a registry
-          tags: tipicos-api:latest # Consider using dynamic tags (e.g., with commit SHA or version)
-
-      - name: Archive Docker image
-        run: docker save tipicos-api:latest > tipicos-image.tar
-
-      - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: docker-image
-          path: tipicos-image.tar
