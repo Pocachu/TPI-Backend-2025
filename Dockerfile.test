@@ -1,6 +1,9 @@
 # Dockerfile.test
 FROM payara/server-full:5.2022.5-jdk11
 
+# Usar el usuario root temporalmente para los comandos que requieren privilegios
+USER root
+
 # Configurar variables de entorno
 ENV DB_SERVER=postgres-test \
     DB_PORT=5432 \
@@ -10,32 +13,27 @@ ENV DB_SERVER=postgres-test \
     SCRIPT_DIR=/opt/payara/scripts \
     DEPLOY_DIR=/opt/payara/deployments
 
-
+# Actualizar e instalar curl - ahora con permisos adecuados
 RUN apt-get update && apt-get install -y curl
 
-# Resto del Dockerfile...
-
-# Ahora curl está disponible
+# Descargar el driver de PostgreSQL
 RUN curl -o ${PAYARA_DIR}/glassfish/domains/domain1/lib/postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
 
-# Copiar el driver de PostgreSQL al directorio de librerías
+# Copiar el driver de PostgreSQL al directorio de librerías (si ya existe localmente)
 COPY postgresql-42.5.1.jar ${PAYARA_DIR}/glassfish/domains/domain1/lib/
 
-# Copiar configuraciones personalizadas si es necesario
-COPY src/main/resources/META-INF/persistence.xml /glassfish/domains/domain1/config/
+# Copiar configuraciones personalizadas
+COPY src/main/resources/META-INF/persistence.xml ${PAYARA_DIR}/glassfish/domains/domain1/config/
 
-# Crear el directorio de despliegue si no existe
+# Crear directorios necesarios
 RUN mkdir -p ${DEPLOY_DIR} ${SCRIPT_DIR}
 
-# Copiar la aplicación WAR al directorio de despliegue automático
-# (Este archivo será montado como volumen desde docker-compose)
-# COPY target/tipicos-api.war /
-
-# RUN curl -o ${PAYARA_DIR}/glassfish/domains/domain1/lib/postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
-
-# Configurar datasource por si es necesario
+# Copiar y dar permisos al script de configuración del datasource
 COPY setup-datasource.sh ${SCRIPT_DIR}/
 RUN chmod +x ${SCRIPT_DIR}/setup-datasource.sh
 
-# Ajustar el comando de inicio para configurar DataSource antes de iniciar el servidor
-CMD ["${PAYARA_DIR}/bin/startInForeground.sh"]
+# Volver al usuario payara para la ejecución normal
+USER payara
+
+# Comando de inicio
+CMD ${PAYARA_DIR}/bin/startInForeground.sh
