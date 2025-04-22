@@ -63,6 +63,10 @@ jobs:
       - name: Run Integration Tests
         run: mvn -B failsafe:integration-test
 
+      - name: Download PostgreSQL JDBC Driver
+        run: |
+          curl -o postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
+
       # PRUEBAS DE SISTEMA (15%)
       - name: Build for System Tests
         run: mvn -B package -DskipTests

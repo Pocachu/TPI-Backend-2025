@@ -23,9 +23,7 @@ RUN mkdir -p ${DEPLOY_DIR} ${SCRIPT_DIR}
 # (Este archivo será montado como volumen desde docker-compose)
 # COPY target/tipicos-api.war /
 
-# Aquí copias el driver JDBC desde lib/
-COPY lib/postgresql-42.5.1.jar \
-     /opt/payara/appserver/glassfish/domains/domain1/lib/
+RUN curl -o ${PAYARA_DIR}/glassfish/domains/domain1/lib/postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
 
 # Configurar datasource por si es necesario
 COPY setup-datasource.sh ${SCRIPT_DIR}/
