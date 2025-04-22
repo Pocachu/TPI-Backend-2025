@@ -10,11 +10,6 @@ ENV DB_SERVER=postgres-test \
     SCRIPT_DIR=/opt/payara/scripts \
     DEPLOY_DIR=/opt/payara/deployments
 
-# Aquí copias el driver JDBC desde lib/
-COPY lib/postgresql-42.5.1.jar \
-     /opt/payara/appserver/glassfish/domains/domain1/lib/
-
-
 # Copiar el driver de PostgreSQL al directorio de librerías
 COPY postgresql-42.5.1.jar ${PAYARA_DIR}/glassfish/domains/domain1/lib/
 
@@ -27,6 +22,10 @@ RUN mkdir -p ${DEPLOY_DIR} ${SCRIPT_DIR}
 # Copiar la aplicación WAR al directorio de despliegue automático
 # (Este archivo será montado como volumen desde docker-compose)
 # COPY target/tipicos-api.war /
+
+# Aquí copias el driver JDBC desde lib/
+COPY lib/postgresql-42.5.1.jar \
+     /opt/payara/appserver/glassfish/domains/domain1/lib/
 
 # Configurar datasource por si es necesario
 COPY setup-datasource.sh ${SCRIPT_DIR}/
