@@ -7,6 +7,12 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+# Verificar puerto PostgreSQL
+if lsof -Pi :5433 -sTCP:LISTEN -t >/dev/null ; then
+    echo "Puerto 5433 en uso. Verifica que no haya otra instancia en ejecución."
+    exit 1
+fi
+
 echo -e "${YELLOW}=== Iniciando pruebas de sistema para Tipicos API ===${NC}"
 
 # Asegurarse de que tenemos el jar del driver de PostgreSQL

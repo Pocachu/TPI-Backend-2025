@@ -27,11 +27,11 @@ services:
       postgres-test:
         condition: service_healthy
     ports:
-      - "9080:8080" # Evitar conflicto con otras aplicaciones
-      - "4848:4848" # Puerto Admin
+      - "${TEST_HTTP_PORT:-9080}:8080" # Puerto HTTP configurable
+      - "${TEST_ADMIN_PORT:-4849}:4848" # Puerto Admin configurable
     environment:
       - DB_SERVER=postgres-test
-      - DB_PORT=5433
+      - DB_PORT=5432
       - DB_NAME=tipicos_test
       - DB_USER=postgres
       - DB_PASSWORD=postgres

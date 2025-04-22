@@ -151,6 +151,12 @@
             <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     
     <build>
@@ -281,7 +287,7 @@
                                 <include>**/*SystemTest.java</include>
                             </includes>
                             <systemPropertyVariables>
-                                <api.url>http://localhost:9080/tipicos-api/api</api.url>
+                                <api.url>http://localhost:8080/tipicos-api/api</api.url>
                                 <wait.time.seconds>180</wait.time.seconds>
                                 <retry.interval.seconds>10</retry.interval.seconds>
                             </systemPropertyVariables>

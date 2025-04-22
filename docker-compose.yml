@@ -31,7 +31,7 @@ services:
       - "4848:4848" # Puerto Admin
     environment:
       - DB_SERVER=postgres
-      - DB_PORT=5433
+      - DB_PORT=5432
       - DB_NAME=tipicos
       - DB_USER=postgres
       - DB_PASSWORD=postgres
