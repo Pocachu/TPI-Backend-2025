@@ -10,6 +10,14 @@ ENV DB_SERVER=postgres-test \
     SCRIPT_DIR=/opt/payara/scripts \
     DEPLOY_DIR=/opt/payara/deployments
 
+
+RUN apt-get update && apt-get install -y curl
+
+# Resto del Dockerfile...
+
+# Ahora curl está disponible
+RUN curl -o ${PAYARA_DIR}/glassfish/domains/domain1/lib/postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
+
 # Copiar el driver de PostgreSQL al directorio de librerías
 COPY postgresql-42.5.1.jar ${PAYARA_DIR}/glassfish/domains/domain1/lib/
 
@@ -23,7 +31,7 @@ RUN mkdir -p ${DEPLOY_DIR} ${SCRIPT_DIR}
 # (Este archivo será montado como volumen desde docker-compose)
 # COPY target/tipicos-api.war /
 
-RUN curl -o ${PAYARA_DIR}/glassfish/domains/domain1/lib/postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
+# RUN curl -o ${PAYARA_DIR}/glassfish/domains/domain1/lib/postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
 
 # Configurar datasource por si es necesario
 COPY setup-datasource.sh ${SCRIPT_DIR}/
