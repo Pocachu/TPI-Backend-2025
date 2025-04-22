@@ -175,7 +175,7 @@
                     </includes>
                 </configuration>
             </plugin>
-
+            
             <!-- Plugin para pruebas de integración -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
