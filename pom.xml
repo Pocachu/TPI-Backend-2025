@@ -18,7 +18,7 @@
         <junit.version>5.13.0-M2</junit.version>
         <mockito.version>5.17.0</mockito.version>
         <testcontainers.version>1.17.2</testcontainers.version>
-        <jersey.version>2.35</jersey.version>
+        <jersey.version>2.33</jersey.version>
         <jackson.version>2.14.1</jackson.version>
         <postgresql.version>42.5.1</postgresql.version>
         <lombok.version>1.18.38</lombok.version>
@@ -27,7 +27,7 @@
     </properties>
 
     <dependencies>
-        <!-- Jakarta EE API -->
+        <!-- Jakarta EE API - Proporcionada por Glassfish -->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
@@ -35,14 +35,64 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Dependencias para PostgreSQL -->
+        <!-- Servlet API - Proporcionada por Glassfish -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jersey Dependencies -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
+
+        <!-- PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
 
-        <!-- Dependencias para pruebas - JUnit Jupiter - Manteniendo versiones originales -->
+        <!-- Jackson para serialización/deserialización JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Pruebas -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -61,8 +111,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-        
-        <!-- Mockito para pruebas - Manteniendo versiones originales -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -76,7 +124,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Testcontainers para pruebas de integración con PostgreSQL -->
+        <!-- TestContainers -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -95,76 +143,30 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-        
-        <!-- Para pruebas de sistema - Cliente HTTP Jersey -->
+
+        <!-- Jersey Client para pruebas -->
         <dependency>
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${jersey.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>${jersey.version}</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <!-- Jackson para serialización/deserialización JSON -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-
-        <!-- Lombok para reducir el código boilerplate -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <!-- Añadimos la dependencia original que podría ser necesaria -->
-        <dependency>
-            <groupId>cn.fxbin.bubble</groupId>
-            <artifactId>bubble-fireworks-core</artifactId>
-            <version>2022.0.1</version>
-        </dependency>
     </dependencies>
     
     <build>
         <finalName>tipicos-api</finalName>
         <plugins>
-            <!-- Plugin para compilación -->
+            <!-- Compilador -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${lombok.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
 
-            <!-- Plugin para pruebas unitarias -->
+            <!-- Pruebas unitarias -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -176,7 +178,7 @@
                 </configuration>
             </plugin>
             
-            <!-- Plugin para pruebas de integración -->
+            <!-- Pruebas de integración -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
@@ -196,7 +198,7 @@
                 </executions>
             </plugin>
 
-            <!-- Plugin para cobertura de código -->
+            <!-- Cobertura de código -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -218,7 +220,7 @@
                 </executions>
             </plugin>
             
-            <!-- Plugin war -->
+            <!-- WAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -227,36 +229,13 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
-            
-            <!-- Plugin para GlassFish -->
-            <plugin>
-                <groupId>org.glassfish.maven.plugin</groupId>
-                <artifactId>maven-glassfish-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <glassfishDirectory>${glassfish.home}</glassfishDirectory>
-                    <user>admin</user>
-                    <passwordFile>${glassfish.home}/domains/domain1/config/admin-keyfile</passwordFile>
-                    <domain>
-                        <name>domain1</name>
-                        <httpPort>8080</httpPort>
-                        <adminPort>4848</adminPort>
-                    </domain>
-                    <components>
-                        <component>
-                            <name>${project.artifactId}</name>
-                            <artifact>${project.build.directory}/${project.build.finalName}.war</artifact>
-                        </component>
-                    </components>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
     
     <profiles>
+        <!-- Perfiles para diferentes tipos de pruebas -->
         <profile>
             <id>unit-test</id>
-            <!-- Configuración para pruebas unitarias -->
             <build>
                 <plugins>
                     <plugin>
@@ -267,9 +246,9 @@
                 </plugins>
             </build>
         </profile>
+        
         <profile>
             <id>integration-test</id>
-            <!-- Configuración para pruebas de integración -->
             <build>
                 <plugins>
                     <plugin>
@@ -288,7 +267,7 @@
                 </plugins>
             </build>
         </profile>
-        <!-- Perfil para pruebas de sistema -->
+        
         <profile>
             <id>system-tests</id>
             <build>

@@ -12,13 +12,22 @@
         <param-value>Development</param-value>
     </context-param>
     
-    <!-- Configuración JAX-RS -->
+    <!-- Configuración JAX-RS con Jersey -->
     <servlet>
-        <servlet-name>javax.ws.rs.core.Application</servlet-name>
+        <servlet-name>Jersey Web Application</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>sv.edu.ues.fmocc.tpi135.controller</param-value>
+        </init-param>
+        <init-param>
+            <param-name>jersey.config.server.provider.classnames</param-name>
+            <param-value>org.glassfish.jersey.jackson.JacksonFeature</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
-    
     <servlet-mapping>
-        <servlet-name>javax.ws.rs.core.Application</servlet-name>
+        <servlet-name>Jersey Web Application</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
     
