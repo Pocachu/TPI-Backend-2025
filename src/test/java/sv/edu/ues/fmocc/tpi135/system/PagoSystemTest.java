@@ -33,14 +33,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(Lifecycle.PER_CLASS)
 public class PagoSystemTest {
 
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-api/api");
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:9080/tipicos-api/api");
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(30)) // Aumentado el timeout de conexión
+            .connectTimeout(Duration.ofSeconds(30))
             .build();
     private final ObjectMapper objectMapper = JsonMapper.builder()
             .addModule(new JavaTimeModule())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) // Ignorar propiedades desconocidas
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
             .build();
     
@@ -62,7 +62,7 @@ public class PagoSystemTest {
     }
     
     private void waitForApplicationReady() throws Exception {
-        int maxRetries = 60; // Más intentos
+        int maxRetries = 30;
         int retryCount = 0;
         boolean isReady = false;
         

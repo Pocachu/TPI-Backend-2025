@@ -1,5 +1,4 @@
 services:
-  # Base de datos PostgreSQL para pruebas
   postgres-test:
     image: postgres:14
     container_name: tipicos-db-test
@@ -8,7 +7,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"
+      - "5433:5432" # Evitar conflicto con PostgreSQL local
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
@@ -19,7 +18,6 @@ services:
     networks:
       - tipicos-test-network
 
-  # Aplicación para pruebas
   app-test:
     build:
       context: .
@@ -29,9 +27,8 @@ services:
       postgres-test:
         condition: service_healthy
     ports:
-      - "8080:8080"  # Cambiar para evitar conflictos
-      - "4848:4848"  # Puerto Admin
-      - "8181:8181"  # Puerto HTTPS
+      - "9080:8080" # Evitar conflicto con otras aplicaciones
+      - "4848:4848" # Puerto Admin
     environment:
       - DB_SERVER=postgres-test
       - DB_PORT=5432
@@ -43,6 +40,11 @@ services:
       - ./target/tipicos-api.war:/opt/payara/deployments/tipicos-api.war
     networks:
       - tipicos-test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/tipicos-api/api/productos"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
 
 networks:
   tipicos-test-network:

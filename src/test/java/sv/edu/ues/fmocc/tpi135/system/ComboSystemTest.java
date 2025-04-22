@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(Lifecycle.PER_CLASS)
 public class ComboSystemTest {
 
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-api/api");
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:9080/tipicos-api/api");
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(30)) // Aumentado el tiempo de conexión
@@ -60,7 +60,7 @@ public class ComboSystemTest {
     }
     
     private void waitForApplicationReady() throws Exception {
-        int maxRetries = 60; // Aumentar el número de intentos
+        int maxRetries = 30;
         int retryCount = 0;
         boolean isReady = false;
         Exception lastException = null;

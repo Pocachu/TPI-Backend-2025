@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ProductoSystemTest {
     
     private static final Logger logger = LoggerFactory.getLogger(ProductoSystemTest.class);
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-api/api");
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:9080/tipicos-api/api");
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(30))  // Aumentado el timeout
@@ -65,7 +65,7 @@ public class ProductoSystemTest {
     }
     
     private void waitForApplicationReady() {
-        int maxRetries = 60;  // Aumentado el número de intentos
+        int maxRetries = 30;
         int retryCount = 0;
         
         logger.info("Esperando a que la aplicación esté disponible en {}...", BASE_URL);

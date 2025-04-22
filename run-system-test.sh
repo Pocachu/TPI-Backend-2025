@@ -38,7 +38,7 @@ echo -e "${YELLOW}Esperando a que la aplicación esté disponible...${NC}"
 MAX_RETRIES=30
 count=0
 while [ $count -lt $MAX_RETRIES ]; do
-  if curl -s http://localhost:8080/tipicos-api/api/productos > /dev/null; then
+  if curl -s http://localhost:9080/tipicos-api/api/productos > /dev/null; then
     echo -e "${GREEN}¡Aplicación disponible!${NC}"
     break
   fi
@@ -56,7 +56,7 @@ fi
 
 # Ejecutar pruebas de sistema
 echo -e "${YELLOW}Ejecutando pruebas de sistema...${NC}"
-mvn -e verify -P system-tests -Dapi.url=http://localhost:8080/tipicos-api/api
+mvn -e verify -P system-tests -Dapi.url=http://localhost:9080/tipicos-api/api
 
 # Capturar el resultado
 test_result=$?

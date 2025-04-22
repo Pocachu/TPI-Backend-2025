@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TipoProductoSystemTest {
 
     // Obtenemos la URL base de una propiedad del sistema o usamos un valor por defecto
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-api/api");
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:9080/tipicos-api/api");
     
     // Configuramos un cliente HTTP con timeout más largo para entornos de CI/CD
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -67,8 +67,7 @@ public class TipoProductoSystemTest {
     }
     
     private void waitForApplicationReady() throws Exception {
-        // Aumentamos los reintentos para dar más tiempo a los contenedores en CI/CD
-        int maxRetries = 60; // 2 minutos con 2 segundos entre intentos
+        int maxRetries = 30;
         int retryCount = 0;
         boolean isReady = false;
         

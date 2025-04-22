@@ -1,50 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
-         version="3.1">
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
     
     <display-name>Tipicos API</display-name>
     
-         <!-- 1) Definición del Servlet de Jersey -->
+    <!-- Configuración del descriptor de despliegue -->
+    <context-param>
+        <param-name>jakarta.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+    </context-param>
+    
+    <!-- Configuración JAX-RS -->
     <servlet>
-        <servlet-name>JerseyServlet</servlet-name>
-        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
-        <!-- Parámetros de inicialización: paquete donde están tus @Path -->
-        <init-param>
-            <param-name>jersey.config.server.provider.packages</param-name>
-            <param-value>sv.edu.ues.fmocc.tpi135</param-value>
-        </init-param>
-        <!-- Opcional: si usas recursos o proveedores individuales -->
-        <!--
-        <init-param>
-          <param-name>jersey.config.server.provider.classnames</param-name>
-          <param-value>
-            com.tuempresa.rest.Recurso1,
-            com.tuempresa.rest.Recurso2
-          </param-value>
-        </init-param>
-        -->
-        <load-on-startup>1</load-on-startup>
+        <servlet-name>javax.ws.rs.core.Application</servlet-name>
     </servlet>
-
-    <!-- 2) Mapeo del Servlet -->
+    
     <servlet-mapping>
-        <servlet-name>JerseyServlet</servlet-name>
-        <!-- todas las URL que empiecen por /api/ irán a Jersey -->
+        <servlet-name>javax.ws.rs.core.Application</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
-
-    <!-- 3) (Opcional) Configuración de filtros o listeners -->
-    <!-- Si necesitas Logging o CORS, por ejemplo: -->
-    <!--
+    
+    <!-- Filtro CORS para permitir solicitudes desde otros dominios (opcional) -->
     <filter>
-      <filter-name>CORSFilter</filter-name>
-      <filter-class>com.tuempresa.filters.CORSFilter</filter-class>
+        <filter-name>CORSFilter</filter-name>
+        <filter-class>sv.edu.ues.fmocc.tpi135.config.CORSFilter</filter-class>
     </filter>
     <filter-mapping>
-      <filter-name>CORSFilter</filter-name>
-      <url-pattern>/*</url-pattern>
+        <filter-name>CORSFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
     </filter-mapping>
-    -->
+    
+    <!-- Configuración de la página principal -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    
+    <!-- Configuración de sesión -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
 </web-app>

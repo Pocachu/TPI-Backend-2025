@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class OrdenSystemTest {
 
     // Permitir configuración vía propiedades del sistema para entornos CI/CD
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-api/api");
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:9080/tipicos-api/api");
     private final int WAIT_TIME_SECONDS = Integer.parseInt(System.getProperty("wait.time.seconds", "60"));
     private final int RETRY_INTERVAL_SECONDS = Integer.parseInt(System.getProperty("retry.interval.seconds", "5"));
     
@@ -71,7 +71,7 @@ public class OrdenSystemTest {
     }
     
     private void waitForApplicationReady() throws Exception {
-        int maxRetries = WAIT_TIME_SECONDS / RETRY_INTERVAL_SECONDS;
+        int maxRetries = 30;
         int retryCount = 0;
         boolean isReady = false;
         
