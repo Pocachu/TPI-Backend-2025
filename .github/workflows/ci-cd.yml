@@ -54,7 +54,7 @@ jobs:
         run: mvn -B jacoco:report
 
       - name: Upload JaCoCo Coverage Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-jacoco@v3
         with:
           name: jacoco-coverage-report
           path: target/site/jacoco/
