@@ -31,7 +31,7 @@ services:
       - "4848:4848" # Puerto Admin
     environment:
       - DB_SERVER=postgres-test
-      - DB_PORT=5432
+      - DB_PORT=5433
       - DB_NAME=tipicos_test
       - DB_USER=postgres
       - DB_PASSWORD=postgres
@@ -41,7 +41,7 @@ services:
     networks:
       - tipicos-test-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/tipicos-api/api/productos"]
+      test: ["CMD", "curl", "-f", "http://localhost:9080/tipicos-api/api/productos"]
       interval: 10s
       timeout: 5s
       retries: 30

@@ -2,7 +2,7 @@ FROM payara/server-full:5.2022.5-jdk11
 
 # Configurar variables de entorno
 ENV DB_SERVER=postgres \
-    DB_PORT=5432 \
+    DB_PORT=5433 \
     DB_NAME=tipicos_tpi135 \
     DB_USER=postgres \
     DB_PASSWORD=postgres \

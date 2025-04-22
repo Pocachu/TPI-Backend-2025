@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y curl wget netcat iputils-ping procps
 
 # Configurar variables de entorno (si aún las necesitas, aunque el script entrypoint las puede usar)
 ENV DB_SERVER=postgres-test \
-    DB_PORT=5432 \
+    DB_PORT=5433 \
     DB_NAME=tipicos_test \
     DB_USER=postgres \
     DB_PASSWORD=postgres \
