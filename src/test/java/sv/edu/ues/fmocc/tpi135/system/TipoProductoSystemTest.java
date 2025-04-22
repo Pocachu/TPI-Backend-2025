@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(Lifecycle.PER_CLASS)
 public class TipoProductoSystemTest {
 
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:9080/tipicos-tpi135/api");
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-tpi135/api");
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
