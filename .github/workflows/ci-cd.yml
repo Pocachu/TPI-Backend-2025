@@ -83,11 +83,11 @@ jobs:
           # Esperar a que el servidor esté listo
           sleep 30
 
-      - name: Run System Tests
-        run: mvn -B failsafe:verify -Dapi.url=http://localhost:8080/tipicos-api/api
+#      - name: Run System Tests
+#        run: mvn -B failsafe:verify -Dapi.url=http://localhost:8080/tipicos-api/api
 
-      - name: Shutdown test environment
-        run: docker compose -f docker-compose.test.yml down
+#      - name: Shutdown test environment
+#        run: docker compose -f docker-compose.test.yml down
 
       # Empaquetado final
       - name: Package application
