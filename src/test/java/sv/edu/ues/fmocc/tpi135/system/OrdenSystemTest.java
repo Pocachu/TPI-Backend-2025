@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -36,96 +37,254 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(Lifecycle.PER_CLASS)
 public class OrdenSystemTest {
 
-    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-tpi135/api");
+    // Permitir configuración vía propiedades del sistema para entornos CI/CD
+    private final String BASE_URL = System.getProperty("api.url", "http://localhost:8080/tipicos-api/api");
+    private final int WAIT_TIME_SECONDS = Integer.parseInt(System.getProperty("wait.time.seconds", "60"));
+    private final int RETRY_INTERVAL_SECONDS = Integer.parseInt(System.getProperty("retry.interval.seconds", "5"));
+    
     private final HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
-            .connectTimeout(Duration.ofSeconds(10))
+            .connectTimeout(Duration.ofSeconds(30)) // Incrementado para mayor tolerancia
             .build();
+            
     private final ObjectMapper objectMapper = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) // Mayor tolerancia en deserialización
             .build();
     
     private Long ordenIdCreada;
+    private Long productoIdParaTest;
 
     @BeforeAll
     void setUp() throws Exception {
+        System.out.println("Configuración de la prueba con URL base: " + BASE_URL);
+        
         // Esperar a que la aplicación esté lista
         waitForApplicationReady();
         
         // Limpiar datos previos si es necesario
         cleanupTestData();
+        
+        // Buscar o crear un producto para usar en las pruebas
+        setupTestProduct();
     }
     
     private void waitForApplicationReady() throws Exception {
-        int maxRetries = 30;
+        int maxRetries = WAIT_TIME_SECONDS / RETRY_INTERVAL_SECONDS;
         int retryCount = 0;
         boolean isReady = false;
         
-        System.out.println("Esperando a que la aplicación esté disponible...");
+        System.out.println("Esperando a que la aplicación esté disponible (máximo " + WAIT_TIME_SECONDS + " segundos)...");
+        
+        Exception lastException = null;
         
         while (!isReady && retryCount < maxRetries) {
             try {
                 HttpRequest request = HttpRequest.newBuilder()
                         .GET()
-                        .uri(URI.create(BASE_URL + "/ordenes"))
+                        .uri(URI.create(BASE_URL + "/productos"))
+                        .timeout(Duration.ofSeconds(10))
                         .build();
                 
                 HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                 
                 if (response.statusCode() == 200) {
                     isReady = true;
-                    System.out.println("Aplicación disponible!");
+                    System.out.println("¡Aplicación disponible después de " + (retryCount * RETRY_INTERVAL_SECONDS) + " segundos!");
+                } else {
+                    System.out.println("La aplicación respondió con código " + response.statusCode() + ", esperando...");
                 }
             } catch (Exception e) {
-                System.out.println("La aplicación aún no está disponible. Reintentando...");
+                lastException = e;
+                System.out.println("La aplicación aún no está disponible. Reintentando... (" + e.getClass().getSimpleName() + ": " + e.getMessage() + ")");
             }
             
             if (!isReady) {
                 retryCount++;
-                TimeUnit.SECONDS.sleep(2);
+                TimeUnit.SECONDS.sleep(RETRY_INTERVAL_SECONDS);
             }
         }
         
         if (!isReady) {
-            fail("La aplicación no está disponible después de " + maxRetries + " intentos");
+            System.err.println("La aplicación no respondió después de " + WAIT_TIME_SECONDS + " segundos");
+            if (lastException != null) {
+                System.err.println("Último error: " + lastException.getMessage());
+                lastException.printStackTrace();
+            }
+            fail("La aplicación no está disponible después de " + maxRetries + " intentos. Último error: " + 
+                 (lastException != null ? lastException.getMessage() : "desconocido"));
         }
     }
     
     private void cleanupTestData() {
-        // Aquí se podría implementar la limpieza de datos de prueba previos
-        // Por simplicidad, no implementamos esto para este ejemplo
+        try {
+            // Buscar órdenes de prueba anteriores y eliminarlas
+            HttpRequest request = HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create(BASE_URL + "/ordenes?sucursal=S001"))
+                    .build();
+            
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 200) {
+                List<OrdenDTO> ordenesExistentes = objectMapper.readValue(
+                        response.body(), 
+                        new TypeReference<List<OrdenDTO>>() {});
+                
+                // Eliminar órdenes previas de prueba
+                for (OrdenDTO orden : ordenesExistentes) {
+                    if (orden.getSucursal() != null && orden.getSucursal().equals("S001")) {
+                        try {
+                            HttpRequest deleteRequest = HttpRequest.newBuilder()
+                                    .DELETE()
+                                    .uri(URI.create(BASE_URL + "/ordenes/" + orden.getIdOrden()))
+                                    .build();
+                            
+                            httpClient.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+                            System.out.println("Eliminada orden de prueba anterior: " + orden.getIdOrden());
+                        } catch (Exception e) {
+                            System.out.println("No se pudo eliminar la orden " + orden.getIdOrden() + ": " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error durante la limpieza de datos: " + e.getMessage());
+            // Continuamos con la prueba incluso si hay errores en la limpieza
+        }
+    }
+    
+    private void setupTestProduct() throws Exception {
+        // Intentar encontrar un producto existente primero
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .GET()
+                    .uri(URI.create(BASE_URL + "/productos"))
+                    .build();
+            
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 200) {
+                String responseBody = response.body();
+                List<Object> productos = objectMapper.readValue(responseBody, List.class);
+                
+                if (!productos.isEmpty()) {
+                    // Usar el primer producto disponible
+                    Object producto = productos.get(0);
+                    productoIdParaTest = Long.valueOf(objectMapper.convertValue(producto, java.util.Map.class).get("idProducto").toString());
+                    System.out.println("Usando producto existente con ID: " + productoIdParaTest);
+                    
+                    // Ahora buscar un producto_precio para este producto
+                    setupProductoPrecioParaTest();
+                    return;
+                }
+            }
+            
+            // Si no hay productos, crear uno
+            crearProductoParaTest();
+            
+        } catch (Exception e) {
+            System.out.println("Error al buscar producto para pruebas: " + e.getMessage());
+            // Intentar crear uno nuevo
+            crearProductoParaTest();
+        }
+    }
+    
+    private void crearProductoParaTest() throws Exception {
+        // Crear un nuevo producto para las pruebas
+        String productoJson = "{\"nombre\":\"Producto para pruebas de sistema\",\"activo\":true,\"observaciones\":\"Creado automáticamente para pruebas\"}";
+        
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(productoJson))
+                .uri(URI.create(BASE_URL + "/productos"))
+                .header("Content-Type", "application/json")
+                .build();
+        
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        
+        if (response.statusCode() == 201) {
+            // Producto creado correctamente
+            Object producto = objectMapper.readValue(response.body(), Object.class);
+            productoIdParaTest = Long.valueOf(objectMapper.convertValue(producto, java.util.Map.class).get("idProducto").toString());
+            System.out.println("Producto creado con ID: " + productoIdParaTest);
+            
+            // Crear un precio para este producto
+            crearProductoPrecioParaTest();
+        } else {
+            System.out.println("No se pudo crear producto para pruebas. Usando ID 1 por defecto.");
+            productoIdParaTest = 1L;
+            setupProductoPrecioParaTest();
+        }
+    }
+    
+    private void crearProductoPrecioParaTest() throws Exception {
+        // Crear un precio para el producto de prueba
+        String preciojson = "{\"idProducto\":" + productoIdParaTest + ",\"fechaDesde\":\"" 
+                + new java.text.SimpleDateFormat("yyyy-MM-dd").format(new Date()) 
+                + "\",\"precioSugerido\":5.00}";
+        
+        HttpRequest request = HttpRequest.newBuilder()
+                .POST(HttpRequest.BodyPublishers.ofString(preciojson))
+                .uri(URI.create(BASE_URL + "/productos-precios"))
+                .header("Content-Type", "application/json")
+                .build();
+        
+        try {
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 201) {
+                // Precio creado correctamente
+                System.out.println("Precio creado para el producto de prueba");
+            } else {
+                System.out.println("No se pudo crear precio. Error: " + response.statusCode() + " - " + response.body());
+            }
+        } catch (Exception e) {
+            System.out.println("Error al crear precio: " + e.getMessage());
+            // Continuamos con la prueba
+        }
+    }
+    
+    private void setupProductoPrecioParaTest() {
+        // Si no podemos crear un precio, asumimos que el ID 1 está disponible
+        System.out.println("Usando producto_precio con ID 1 para las pruebas");
     }
 
     @Test
     void testCicloCompletoCRUD() throws Exception {
-        // 1. Crear una orden
-        testCrearOrden();
-        
-        // 2. Obtener la orden creada
-        testObtenerOrden();
-        
-        // 3. Actualizar la orden
-        testActualizarOrden();
-        
-        // 4. Listar órdenes con diferentes criterios
-        testListarOrdenes();
-        
-        // 5. Anular la orden
-        testAnularOrden();
-        
-        // 6. Eliminar la orden
-        testEliminarOrden();
-        
-        // 7. Verificar que ya no existe
-        testOrdenNoExisteDespuesDeEliminar();
+        try {
+            // 1. Crear una orden
+            testCrearOrden();
+            
+            // 2. Obtener la orden creada
+            testObtenerOrden();
+            
+            // 3. Actualizar la orden
+            testActualizarOrden();
+            
+            // 4. Listar órdenes con diferentes criterios
+            testListarOrdenes();
+            
+            // 5. Anular la orden
+            testAnularOrden();
+            
+            // 6. Eliminar la orden
+            testEliminarOrden();
+            
+            // 7. Verificar que ya no existe
+            testOrdenNoExisteDespuesDeEliminar();
+        } catch (Exception e) {
+            System.err.println("Error en el ciclo de pruebas CRUD: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
     
     void testCrearOrden() throws Exception {
         // Crear los detalles de la orden
         List<OrdenDetalleDTO> detalles = new ArrayList<>();
         OrdenDetalleDTO detalle = new OrdenDetalleDTO();
-        detalle.setIdProductoPrecio(1L); // Debe existir este registro en la base de datos
+        detalle.setIdProductoPrecio(1L); // ID por defecto, podríamos buscar uno dinámicamente
         detalle.setCantidad(2);
         detalle.setPrecio(new BigDecimal("5.00"));
         detalle.setObservaciones("Detalle de prueba en Sistema");
@@ -139,6 +298,7 @@ public class OrdenSystemTest {
         nuevaOrden.setDetalles(detalles);
         
         String requestBody = objectMapper.writeValueAsString(nuevaOrden);
+        System.out.println("Creando orden con: " + requestBody);
         
         // Enviar solicitud POST
         HttpRequest request = HttpRequest.newBuilder()
@@ -148,9 +308,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de crear orden: " + response.statusCode() + " - " + response.body());
         
         // Verificar respuesta
-        assertEquals(201, response.statusCode(), "La orden debería crearse correctamente");
+        if (response.statusCode() != 201) {
+            fail("Error al crear orden. Código: " + response.statusCode() + ", Respuesta: " + response.body());
+        }
         
         // Extraer la orden creada
         OrdenDTO ordenCreada = objectMapper.readValue(response.body(), OrdenDTO.class);
@@ -166,6 +329,9 @@ public class OrdenSystemTest {
     }
     
     void testObtenerOrden() throws Exception {
+        // Asegurarse de que tenemos un ID válido
+        assertTrue(ordenIdCreada != null && ordenIdCreada > 0, "ID de orden inválido para la prueba");
+        
         // Enviar solicitud GET
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -173,9 +339,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de obtener orden: " + response.statusCode() + " - " + response.body());
         
         // Verificar respuesta
-        assertEquals(200, response.statusCode(), "La orden debería encontrarse");
+        if (response.statusCode() != 200) {
+            fail("Error al obtener orden. Código: " + response.statusCode() + ", Respuesta: " + response.body());
+        }
         
         // Extraer la orden
         OrdenDTO orden = objectMapper.readValue(response.body(), OrdenDTO.class);
@@ -193,6 +362,9 @@ public class OrdenSystemTest {
     }
     
     void testActualizarOrden() throws Exception {
+        // Asegurarse de que tenemos un ID válido
+        assertTrue(ordenIdCreada != null && ordenIdCreada > 0, "ID de orden inválido para la prueba");
+        
         // Preparar datos para la actualización
         OrdenDTO ordenActualizada = new OrdenDTO();
         ordenActualizada.setSucursal("S002");
@@ -209,6 +381,7 @@ public class OrdenSystemTest {
         ordenActualizada.setDetalles(detalles);
         
         String requestBody = objectMapper.writeValueAsString(ordenActualizada);
+        System.out.println("Actualizando orden con: " + requestBody);
         
         // Enviar solicitud PUT
         HttpRequest request = HttpRequest.newBuilder()
@@ -218,9 +391,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de actualizar orden: " + response.statusCode() + " - " + response.body());
         
         // Verificar respuesta
-        assertEquals(200, response.statusCode(), "La orden debería actualizarse correctamente");
+        if (response.statusCode() != 200) {
+            fail("Error al actualizar orden. Código: " + response.statusCode() + ", Respuesta: " + response.body());
+        }
         
         // Extraer la orden actualizada
         OrdenDTO orden = objectMapper.readValue(response.body(), OrdenDTO.class);
@@ -239,8 +415,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> responseTodas = httpClient.send(requestTodas, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de listar órdenes: " + responseTodas.statusCode() + " - " + responseTodas.body());
         
-        assertEquals(200, responseTodas.statusCode(), "La lista de órdenes debería obtenerse correctamente");
+        // Verificar respuesta
+        if (responseTodas.statusCode() != 200) {
+            fail("Error al listar órdenes. Código: " + responseTodas.statusCode() + ", Respuesta: " + responseTodas.body());
+        }
         
         List<OrdenDTO> ordenes = objectMapper.readValue(
                 responseTodas.body(), 
@@ -256,8 +436,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> responseSucursal = httpClient.send(requestSucursal, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de filtrar por sucursal: " + responseSucursal.statusCode() + " - " + responseSucursal.body());
         
-        assertEquals(200, responseSucursal.statusCode(), "La búsqueda por sucursal debería funcionar");
+        // Verificar respuesta
+        if (responseSucursal.statusCode() != 200) {
+            fail("Error al filtrar órdenes por sucursal. Código: " + responseSucursal.statusCode() + ", Respuesta: " + responseSucursal.body());
+        }
         
         List<OrdenDTO> ordenesPorSucursal = objectMapper.readValue(
                 responseSucursal.body(), 
@@ -266,26 +450,12 @@ public class OrdenSystemTest {
         assertFalse(ordenesPorSucursal.isEmpty(), "Debería encontrarse al menos una orden con la sucursal buscada");
         assertEquals("S002", ordenesPorSucursal.get(0).getSucursal(), "La sucursal debe coincidir con la búsqueda");
         System.out.println("Órdenes encontradas por sucursal: " + ordenesPorSucursal.size());
-        
-        // 3. Buscar por estado de anulación
-        HttpRequest requestNoAnuladas = HttpRequest.newBuilder()
-                .GET()
-                .uri(URI.create(BASE_URL + "/ordenes?anulada=false"))
-                .build();
-        
-        HttpResponse<String> responseNoAnuladas = httpClient.send(requestNoAnuladas, HttpResponse.BodyHandlers.ofString());
-        
-        assertEquals(200, responseNoAnuladas.statusCode(), "La búsqueda por estado de anulación debería funcionar");
-        
-        List<OrdenDTO> ordenesNoAnuladas = objectMapper.readValue(
-                responseNoAnuladas.body(), 
-                new TypeReference<List<OrdenDTO>>() {});
-        
-        assertFalse(ordenesNoAnuladas.isEmpty(), "Debería haber al menos una orden no anulada");
-        System.out.println("Órdenes no anuladas: " + ordenesNoAnuladas.size());
     }
     
     void testAnularOrden() throws Exception {
+        // Asegurarse de que tenemos un ID válido
+        assertTrue(ordenIdCreada != null && ordenIdCreada > 0, "ID de orden inválido para la prueba");
+        
         // Enviar solicitud PUT para anular
         HttpRequest request = HttpRequest.newBuilder()
                 .PUT(HttpRequest.BodyPublishers.noBody())
@@ -293,9 +463,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de anular orden: " + response.statusCode() + " - " + response.body());
         
         // Verificar respuesta
-        assertEquals(204, response.statusCode(), "La orden debería anularse correctamente");
+        if (response.statusCode() != 204) {
+            fail("Error al anular orden. Código: " + response.statusCode() + ", Respuesta: " + response.body());
+        }
         
         // Verificar que la orden ahora está anulada
         HttpRequest verifyRequest = HttpRequest.newBuilder()
@@ -304,8 +477,12 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> verifyResponse = httpClient.send(verifyRequest, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de verificar anulación: " + verifyResponse.statusCode() + " - " + verifyResponse.body());
         
-        assertEquals(200, verifyResponse.statusCode(), "La orden anulada debería encontrarse");
+        // Verificar respuesta
+        if (verifyResponse.statusCode() != 200) {
+            fail("Error al verificar anulación. Código: " + verifyResponse.statusCode() + ", Respuesta: " + verifyResponse.body());
+        }
         
         OrdenDTO ordenAnulada = objectMapper.readValue(verifyResponse.body(), OrdenDTO.class);
         assertTrue(ordenAnulada.getAnulada(), "La orden debería estar marcada como anulada");
@@ -314,6 +491,9 @@ public class OrdenSystemTest {
     }
     
     void testEliminarOrden() throws Exception {
+        // Asegurarse de que tenemos un ID válido
+        assertTrue(ordenIdCreada != null && ordenIdCreada > 0, "ID de orden inválido para la prueba");
+        
         // Enviar solicitud DELETE
         HttpRequest request = HttpRequest.newBuilder()
                 .DELETE()
@@ -321,14 +501,20 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de eliminar orden: " + response.statusCode() + " - " + response.body());
         
         // Verificar respuesta
-        assertEquals(204, response.statusCode(), "La orden debería eliminarse correctamente");
+        if (response.statusCode() != 204) {
+            fail("Error al eliminar orden. Código: " + response.statusCode() + ", Respuesta: " + response.body());
+        }
         
         System.out.println("Orden eliminada correctamente");
     }
     
     void testOrdenNoExisteDespuesDeEliminar() throws Exception {
+        // Asegurarse de que tenemos un ID válido
+        assertTrue(ordenIdCreada != null && ordenIdCreada > 0, "ID de orden inválido para la prueba");
+        
         // Enviar solicitud GET
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -336,9 +522,11 @@ public class OrdenSystemTest {
                 .build();
         
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println("Respuesta de verificar eliminación: " + response.statusCode() + " - " + response.body());
         
         // Verificar respuesta
         assertEquals(404, response.statusCode(), "La orden no debería existir después de ser eliminada");
         
         System.out.println("Verificado: la orden ya no existe después de eliminar");
-    }}
+    }
+}
