@@ -46,11 +46,19 @@ jobs:
         run: mvn -B clean compile
 
       # PRUEBAS UNITARIAS (15%)
-      - name: Run Unit Tests
+      - name: Run Unit Tests Combo
         run: mvn -B test -Dtest=src/test/java/sv/edu/ues/fmocc/tpi135/service/ComboServiceTest.java
+
+      - name: Run Unit Tests Orden
         run: mvn -B test -Dtest=src/test/java/sv/edu/ues/fmocc/tpi135/service/OrdenServiceTest.java
+
+      - name: Run Unit Tests Pago
         run: mvn -B test -Dtest=src/test/java/sv/edu/ues/fmocc/tpi135/service/PagoServiceTest.java
+
+      - name: Run Unit Tests Producto
         run: mvn -B test -Dtest=src/test/java/sv/edu/ues/fmocc/tpi135/service/ProductoServiceTest.java
+
+      - name: Run Unit Tests TipoProducto
         run: mvn -B test -Dtest=src/test/java/sv/edu/ues/fmocc/tpi135/service/TipoProductoServiceTest.java
 
 
