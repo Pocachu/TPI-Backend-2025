@@ -1,4 +1,3 @@
-como Configuro GitHub Actions para CI/CD, le quiero mandar los soguientes parametros "
 name: CI/CD Pipeline
 
 on:
@@ -40,7 +39,7 @@ jobs:
 
       - name: Initialize test database
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c "$(cat src/main/resources/db/init.sql)"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c 
 
       # Compilación del proyecto
       - name: Build with Maven
@@ -75,7 +74,7 @@ jobs:
           sleep 30
 
       - name: Run System Tests
-        run: mvn -B failsafe:verify -Dapi.url=http://localhost:9080/tipicos-tpi135/api
+        run: mvn -B failsafe:verify -Dapi.url=http://localhost:8080/tipicos-api/api
         
       - name: Shutdown test environment
         run: docker-compose -f docker-compose.test.yml down
@@ -88,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: application-war
-          path: target/tipicos-tpi135.war
+          path: target/tipicos-api.war
 
   # Tarea de despliegue (solo se ejecuta para la rama main)
   deploy:
@@ -114,15 +113,13 @@ jobs:
         with:
           context: .
           push: false
-          tags: tipicos-tpi135:latest
+          tags: tipicos-api:latest
           
       - name: Archive Docker image
-        run: docker save tipicos-tpi135:latest > tipicos-image.tar
+        run: docker save tipicos-api:latest > tipicos-image.tar
         
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v3
         with:
           name: docker-image
           path: tipicos-image.tar
-
-"
