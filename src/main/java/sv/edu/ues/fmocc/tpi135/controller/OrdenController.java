@@ -158,4 +158,5 @@ public class OrdenController {
                     .entity("Orden no encontrada con ID: " + id)
                     .build();
         }
-    }}
+    }
+}

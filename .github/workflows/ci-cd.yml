@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      # Servicio PostgreSQL para pruebas
       postgres:
         image: postgres:14
         env:
@@ -19,7 +18,7 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
-          - 5432:5432
+          - 5433:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -39,14 +38,14 @@ jobs:
 
       - name: Initialize test database
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c "CREATE EXTENSION IF NOT EXISTS dblink;" # Added a placeholder command as '-c' requires a command
+          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c "CREATE EXTENSION IF NOT EXISTS dblink;"
 
       # Compilación del proyecto
       - name: Build with Maven
         run: mvn -B clean compile
 
       # PRUEBAS UNITARIAS (15%)
-      - name: Run Unit Tests Combo
+      - name: Run Unit Tests
         run: mvn -B test -Dtest="sv.edu.ues.fmocc.tpi135.service.*Test"
 
       # PRUEBAS DE COBERTURA (15%)
@@ -61,7 +60,7 @@ jobs:
 
       # PRUEBAS DE INTEGRACIÓN (15%)
       - name: Run Integration Tests
-        run: mvn -B failsafe:integration-test
+        run: mvn -B failsafe:integration-test -P integration-test
 
       - name: Download PostgreSQL JDBC Driver
         run: |
@@ -75,12 +74,14 @@ jobs:
         run: |
           docker compose -f docker-compose.test.yml up -d
           # Esperar a que el servidor esté listo
-          sleep 30
+          echo "Esperando que el servidor esté disponible..."
+          timeout 120 bash -c 'until curl -s http://localhost:9080/tipicos-api/api/productos > /dev/null; do sleep 5; echo "Esperando..."; done'
 
-#      - name: Run System Tests
-#        run: mvn -B failsafe:verify -Dapi.url=http://localhost:9080/tipicos-api/api
+      - name: Run System Tests
+        run: mvn -B failsafe:verify -P system-tests -Dapi.url=http://localhost:9080/tipicos-api/api
 
       - name: Shutdown test environment
+        if: always()
         run: docker compose -f docker-compose.test.yml down
 
       # Empaquetado final
