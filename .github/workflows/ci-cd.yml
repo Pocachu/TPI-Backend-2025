@@ -39,12 +39,12 @@ jobs:
 
       - name: Initialize test database
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c 
+          PGPASSWORD=postgres psql -h localhost -U postgres -d tipicos_test -c "CREATE EXTENSION IF NOT EXISTS dblink;" # Added a placeholder command as '-c' requires a command
 
       # Compilación del proyecto
       - name: Build with Maven
         run: mvn -B clean compile
-        
+
       # PRUEBAS UNITARIAS (15%)
       - name: Run Unit Tests
         run: mvn -B test
@@ -75,7 +75,7 @@ jobs:
 
       - name: Run System Tests
         run: mvn -B failsafe:verify -Dapi.url=http://localhost:8080/tipicos-api/api
-        
+
       - name: Shutdown test environment
         run: docker-compose -f docker-compose.test.yml down
 
@@ -94,30 +94,30 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Download WAR artifact
         uses: actions/download-artifact@v3
         with:
           name: application-war
           path: target/
-          
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
           context: .
-          push: false
-          tags: tipicos-api:latest
-          
+          push: false # Consider changing to true if you want to push the image to a registry
+          tags: tipicos-api:latest # Consider using dynamic tags (e.g., with commit SHA or version)
+
       - name: Archive Docker image
         run: docker save tipicos-api:latest > tipicos-image.tar
-        
+
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v3
         with:
