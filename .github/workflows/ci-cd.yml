@@ -53,7 +53,7 @@ jobs:
 
       # PRUEBAS UNITARIAS (15%)
       - name: Run Unit Tests Combo
-        run: mvn -B test -Dtest="sv.edu.ues.fmocc.tpi135.service.*Test"
+        run: mvn -BeX test -Dtest="sv.edu.ues.fmocc.tpi135.service.*Test"
 
       # PRUEBAS DE COBERTURA (15%)
       - name: Generate JaCoCo Coverage Report
