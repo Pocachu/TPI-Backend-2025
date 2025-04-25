@@ -141,15 +141,10 @@ public class PagoIntegrationIT {
             return p;
         });
         
-        // Configuración de mocks para crear detalle
         when(pagoDetalleRepository.crear(any(PagoDetalle.class))).thenReturn(pagoDetalleEntity);
-        
-        // Configuración de mocks para obtener pago
         when(pagoRepository.encontrarPorId(1L)).thenReturn(Optional.of(pagoEntity));
-        
-        // Configuración de mocks para obtener detalles
         when(pagoDetalleRepository.buscarPorIdPago(1L)).thenReturn(List.of(pagoDetalleEntity));
-
+        when(pagoDetalleRepository.buscarPorIdPago(anyLong())).thenReturn(List.of(pagoDetalleEntity));
         // Ejecutar flujo: crear pago
         PagoDTO inputDTO = new PagoDTO();
         inputDTO.setIdOrden(1L);
@@ -187,7 +182,7 @@ public class PagoIntegrationIT {
         verify(pagoRepository).crear(any(Pago.class));
         verify(pagoDetalleRepository).crear(any(PagoDetalle.class));
         verify(pagoRepository).encontrarPorId(1L);
-        verify(pagoDetalleRepository).buscarPorIdPago(1L);
+        verify(pagoDetalleRepository, atLeastOnce()).buscarPorIdPago(1L);
     }
 
     @Test

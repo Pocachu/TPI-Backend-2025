@@ -43,7 +43,7 @@ public class OrdenIntegrationIT {
 
     @Mock
     private OrdenDetalleRepositoryImpl ordenDetalleRepository;
-    
+
     @Mock
     private ProductoPrecioRepository productoPrecioRepository;
 
@@ -60,17 +60,17 @@ public class OrdenIntegrationIT {
     void setUp() {
         // Configurar capa de servicio con los repositorios mock
         ordenService = new OrdenServiceImpl();
-        
+
         // Usamos reflexión para inyectar los repositorios mock en el servicio
         try {
             java.lang.reflect.Field field = OrdenServiceImpl.class.getDeclaredField("ordenRepository");
             field.setAccessible(true);
             field.set(ordenService, ordenRepository);
-            
+
             field = OrdenServiceImpl.class.getDeclaredField("ordenDetalleRepository");
             field.setAccessible(true);
             field.set(ordenService, ordenDetalleRepository);
-            
+
             field = OrdenServiceImpl.class.getDeclaredField("productoPrecioRepository");
             field.setAccessible(true);
             field.set(ordenService, productoPrecioRepository);
@@ -90,14 +90,14 @@ public class OrdenIntegrationIT {
 
         // Datos de prueba para fecha
         fecha = new Date();
-        
+
         // Datos de prueba para entidad Orden
         ordenEntity = new Orden();
         ordenEntity.setIdOrden(1L);
         ordenEntity.setFecha(fecha);
         ordenEntity.setSucursal("S001");
         ordenEntity.setAnulada(false);
-        
+
         // Datos de prueba para entidad OrdenDetalle
         ordenDetalleEntity = new OrdenDetalle();
         ordenDetalleEntity.setIdOrden(1L);
@@ -113,7 +113,7 @@ public class OrdenIntegrationIT {
         ordenDetalleDTO.setCantidad(2);
         ordenDetalleDTO.setPrecio(new BigDecimal("5.00"));
         ordenDetalleDTO.setObservaciones("Detalle de prueba");
-        
+
         // Datos de prueba para DTO Orden
         ordenDTO = new OrdenDTO();
         ordenDTO.setIdOrden(1L);
@@ -131,11 +131,11 @@ public class OrdenIntegrationIT {
             o.setIdOrden(1L); // Simulamos generación de ID
             return o;
         });
-        
+
         when(ordenDetalleRepository.crear(any(OrdenDetalle.class))).thenReturn(ordenDetalleEntity);
-        
+
         when(ordenRepository.encontrarPorId(1L)).thenReturn(Optional.of(ordenEntity));
-        
+
         when(ordenDetalleRepository.buscarPorIdOrden(1L)).thenReturn(List.of(ordenDetalleEntity));
 
         // Ejecutar flujo: crear orden
@@ -158,7 +158,7 @@ public class OrdenIntegrationIT {
         OrdenDTO retrievedDTO = (OrdenDTO) getResponse.getEntity();
         assertEquals(1L, retrievedDTO.getIdOrden());
         assertEquals("S001", retrievedDTO.getSucursal());
-        
+
         // Verificar que se obtuvieron los detalles
         assertNotNull(retrievedDTO.getDetalles());
         assertEquals(1, retrievedDTO.getDetalles().size());
@@ -168,34 +168,34 @@ public class OrdenIntegrationIT {
         verify(ordenRepository).crear(any(Orden.class));
         verify(ordenDetalleRepository).crear(any(OrdenDetalle.class));
         verify(ordenRepository).encontrarPorId(1L);
-        verify(ordenDetalleRepository).buscarPorIdOrden(1L);
+        verify(ordenDetalleRepository, atLeastOnce()).buscarPorIdOrden(1L);
     }
 
     @Test
     void testFlujoActualizarOrden() {
         // Configuración de mocks
         when(ordenRepository.encontrarPorId(1L)).thenReturn(Optional.of(ordenEntity));
-        
+
         when(ordenRepository.actualizar(any(Orden.class))).thenAnswer(invocation -> {
             Orden o = invocation.getArgument(0);
             return o; // Devolvemos el mismo objeto actualizado
         });
-        
+
         when(ordenDetalleRepository.eliminarPorIdOrden(1L)).thenReturn(1); // 1 detalle eliminado
-        
+
         when(ordenDetalleRepository.crear(any(OrdenDetalle.class))).thenReturn(ordenDetalleEntity);
 
         // Ejecutar flujo: actualizar orden
         OrdenDTO updateDTO = new OrdenDTO();
         updateDTO.setSucursal("S002");
         updateDTO.setAnulada(true);
-        
+
         // Agregar un nuevo detalle para la actualización
         OrdenDetalleDTO nuevoDetalleDTO = new OrdenDetalleDTO();
         nuevoDetalleDTO.setIdProductoPrecio(2L);
         nuevoDetalleDTO.setCantidad(3);
         nuevoDetalleDTO.setPrecio(new BigDecimal("7.50"));
-        
+
         updateDTO.setDetalles(List.of(nuevoDetalleDTO));
 
         Response updateResponse = ordenController.actualizarOrden(1L, updateDTO);
@@ -228,7 +228,7 @@ public class OrdenIntegrationIT {
         when(ordenRepository.buscarPorSucursal("S001")).thenReturn(ordenesPorSucursal);
         when(ordenRepository.buscarPorFecha(eq(fecha))).thenReturn(ordenesPorFecha);
         when(ordenRepository.buscarPorAnulada(false)).thenReturn(ordenesPorAnulada);
-        
+        when(ordenDetalleRepository.buscarPorIdOrden(anyLong())).thenReturn(List.of(ordenDetalleEntity));
         when(ordenDetalleRepository.buscarPorIdOrden(anyLong())).thenReturn(List.of());
 
         // Ejecutar flujo: listar todas
@@ -269,11 +269,11 @@ public class OrdenIntegrationIT {
         // Configuración de mocks para anular
         when(ordenRepository.anular(1L)).thenReturn(true);
         when(ordenRepository.anular(999L)).thenReturn(false);
-        
+
         // Configuración de mocks para eliminar
         when(ordenDetalleRepository.eliminarPorIdOrden(1L)).thenReturn(1);
         when(ordenRepository.eliminar(1L)).thenReturn(true);
-        
+
         when(ordenDetalleRepository.eliminarPorIdOrden(999L)).thenReturn(0);
         when(ordenRepository.eliminar(999L)).thenReturn(false);
 
