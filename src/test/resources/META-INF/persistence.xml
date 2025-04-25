@@ -16,13 +16,10 @@
         <class>sv.edu.ues.fmocc.tpi135.entity.Pago</class>
         <class>sv.edu.ues.fmocc.tpi135.entity.PagoDetalle</class>
         <properties>
-            <!-- Las propiedades de conexión se configuran programáticamente -->
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <!-- Para pruebas, utilizamos EclipseLink como implementación de JPA -->
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
-            <!-- Creación de tablas automática para pruebas -->
-            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <property name="javax.persistence.schema-generation.database.action" value="create"/>
         </properties>
     </persistence-unit>
 </persistence>
