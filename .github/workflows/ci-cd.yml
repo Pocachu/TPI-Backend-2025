@@ -72,29 +72,3 @@ jobs:
       - name: Download PostgreSQL JDBC Driver
         run: |
           curl -o postgresql-42.5.1.jar -L https://jdbc.postgresql.org/download/postgresql-42.5.1.jar
-
-      # PRUEBAS DE SISTEMA (15%)
-      - name: Build for System Tests
-        run: mvn -B package -DskipTests
-
-      - name: Set up test environment with Docker
-        run: |
-          docker compose -f docker-compose.test.yml up -d
-          # Esperar a que el servidor esté listo
-          sleep 30
-
-#      - name: Run System Tests
-#        run: mvn -B failsafe:verify -Dapi.url=http://localhost:8080/tipicos-api/api
-
-#      - name: Shutdown test environment
-#        run: docker compose -f docker-compose.test.yml down
-
-      # Empaquetado final
-      - name: Package application
-        run: mvn -B package -DskipTests
-
-      - name: Upload WAR artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: application-war
-          path: target/tipicos-api.war
