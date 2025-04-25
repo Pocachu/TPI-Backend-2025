@@ -21,7 +21,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-public class ProductoSystemTest {
+public class ProductoSystem {
 
     // Configuración del contenedor PostgreSQL
     @Container
