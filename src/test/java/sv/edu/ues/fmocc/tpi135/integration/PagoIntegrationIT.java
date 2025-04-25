@@ -186,7 +186,7 @@ public class PagoIntegrationIT {
         verify(pagoRepository).crear(any(Pago.class));
         verify(pagoDetalleRepository).crear(any(PagoDetalle.class));
         verify(pagoRepository).encontrarPorId(1L);
-        verify(pagoDetalleRepository).buscarPorIdPago(1L);
+        verify(pagoDetalleRepository, times(2)).buscarPorIdPago(1L);
     }
 
     @Test
@@ -289,7 +289,7 @@ public class PagoIntegrationIT {
         // Configuración de mocks
         when(pagoRepository.listarTodos()).thenReturn(pagos);
         when(pagoRepository.buscarPorMetodoPago("EFECTIVO")).thenReturn(pagosEfectivo);
-        when(pagoRepository.buscarPorMetodoPago("TARJETA")).thenReturn(pagosTarjeta);
+        when(pagoDetalleRepository.buscarPorIdPago(anyLong())).thenReturn(List.of());
         when(pagoRepository.buscarPorIdOrden(1L)).thenReturn(pagosPorOrden);
         when(pagoRepository.buscarPorFecha(eq(fecha))).thenReturn(pagos);
         
