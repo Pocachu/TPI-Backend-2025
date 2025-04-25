@@ -3,8 +3,7 @@
              xmlns="http://xmlns.jcp.org/xml/ns/persistence" 
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
-    <persistence-unit name="TipicosPU" transaction-type="JTA">
-        <jta-data-source>jdbc/TipicosDS</jta-data-source>
+    <persistence-unit name="TipicosPUTest" transaction-type="RESOURCE_LOCAL">
         <class>sv.edu.ues.fmocc.tpi135.entity.Producto</class>
         <class>sv.edu.ues.fmocc.tpi135.entity.TipoProducto</class>
         <class>sv.edu.ues.fmocc.tpi135.entity.ProductoDetalle</class>
@@ -17,12 +16,13 @@
         <class>sv.edu.ues.fmocc.tpi135.entity.Pago</class>
         <class>sv.edu.ues.fmocc.tpi135.entity.PagoDetalle</class>
         <properties>
-            <property name="javax.persistence.schema-generation.database.action" value="none"/>
+            <!-- Las propiedades de conexión se configuran programáticamente -->
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <!-- Para pruebas, utilizamos EclipseLink como implementación de JPA -->
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
-            <!-- Propiedades adicionales para la conexión -->
-            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <property name="eclipselink.target-database" value="PostgreSQL"/>
+            <!-- Creación de tablas automática para pruebas -->
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
         </properties>
     </persistence-unit>
 </persistence>

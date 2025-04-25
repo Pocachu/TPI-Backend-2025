@@ -124,20 +124,16 @@ public class OrdenIntegrationIT {
     }
 
     @Test
+    @ExtendWith(MockitoExtension.class)
     void testFlujoCrearObtenerOrden() {
-        // Configuración de mocks
         when(ordenRepository.crear(any(Orden.class))).thenAnswer(invocation -> {
             Orden o = invocation.getArgument(0);
-            o.setIdOrden(1L); // Simulamos generación de ID
+            o.setIdOrden(1L);
             return o;
         });
-
         when(ordenDetalleRepository.crear(any(OrdenDetalle.class))).thenReturn(ordenDetalleEntity);
-
         when(ordenRepository.encontrarPorId(1L)).thenReturn(Optional.of(ordenEntity));
-
         when(ordenDetalleRepository.buscarPorIdOrden(1L)).thenReturn(List.of(ordenDetalleEntity));
-
         // Ejecutar flujo: crear orden
         OrdenDTO inputDTO = new OrdenDTO();
         inputDTO.setFecha(fecha);
