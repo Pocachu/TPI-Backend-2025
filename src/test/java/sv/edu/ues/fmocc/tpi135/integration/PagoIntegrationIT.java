@@ -32,10 +32,6 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-/**
- * Pruebas de integración para validar la interacción entre controladores,
- * servicios y repositorios en el flujo de operaciones CRUD de pagos.
- */
 @ExtendWith(MockitoExtension.class)
 public class PagoIntegrationIT {
 
