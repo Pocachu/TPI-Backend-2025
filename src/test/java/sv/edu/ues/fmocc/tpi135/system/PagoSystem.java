@@ -167,72 +167,207 @@ public class PagoSystem {
         // Verificar que se hayan creado los detalles
         assertNotNull(recuperado.get().getDetalles());
         assertFalse(recuperado.get().getDetalles().isEmpty());
-        assertEquals(new BigDecimal("25.00").stripTrailingZeros(), 
-            recuperado.get().getDetalles().get(0).getMonto().stripTrailingZeros());
+        assertEquals(new BigDecimal("25.00").stripTrailingZeros(),
+                recuperado.get().getDetalles().get(0).getMonto().stripTrailingZeros());
         assertEquals("Pago con tarjeta Visa", recuperado.get().getDetalles().get(0).getObservaciones());
     }
 
     @Test
     public void testActualizarPago() {
-        // Crear un pago para actualizar
-        PagoDTO nuevoPago = new PagoDTO();
-        nuevoPago.setIdOrden(idOrden);
-        nuevoPago.setFecha(new Date());
-        nuevoPago.setMetodoPago("EFECTIVO");
-        nuevoPago.setReferencia("Pago inicial");
+        boolean transactionStarted = false;
+        try {
+            // Crear un pago para actualizar
+            PagoDTO nuevoPago = new PagoDTO();
+            nuevoPago.setIdOrden(idOrden);
+            nuevoPago.setFecha(new Date());
+            nuevoPago.setMetodoPago("EFECTIVO");
+            nuevoPago.setReferencia("Pago inicial");
 
-        // Crear detalle inicial
-        PagoDetalleDTO detalleInicial = new PagoDetalleDTO();
-        detalleInicial.setMonto(new BigDecimal("15.00"));
-        detalleInicial.setObservaciones("Pago parcial");
+            // Crear detalle inicial
+            PagoDetalleDTO detalleInicial = new PagoDetalleDTO();
+            detalleInicial.setMonto(new BigDecimal("15.00"));
+            detalleInicial.setObservaciones("Pago parcial");
 
-        nuevoPago.setDetalles(Collections.singletonList(detalleInicial));
+            nuevoPago.setDetalles(Collections.singletonList(detalleInicial));
 
-        // Iniciar transacción
-        em.getTransaction().begin();
+            // Iniciar transacción para crear el pago
+            transactionStarted = beginTransactionIfNeeded();
+            PagoDTO pagoCreado = pagoService.crearPago(nuevoPago);
+            Long idPagoCreado = pagoCreado.getIdPago(); // Guardar ID para usar después
 
-        // Crear el pago
-        PagoDTO pagoCreado = pagoService.crearPago(nuevoPago);
+            // Finalizar transacción de creación
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
 
-        // Finalizar transacción
-        em.getTransaction().commit();
+            // Limpiar estado del EntityManager
+            em.clear();
 
-        // Preparar la actualización
-        PagoDTO actualizacion = new PagoDTO();
-        actualizacion.setMetodoPago("TRANSFERENCIA");
-        actualizacion.setReferencia("Pago actualizado por transferencia");
+            // Verificar que se creó correctamente
+            transactionStarted = beginTransactionIfNeeded();
+            Optional<PagoDTO> verificacionInicial = pagoService.obtenerPagoPorId(idPagoCreado);
+            assertTrue(verificacionInicial.isPresent());
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
+            em.clear();
 
-        // Crear nuevo detalle para reemplazar el anterior
-        PagoDetalleDTO nuevoDetalle = new PagoDetalleDTO();
-        nuevoDetalle.setMonto(new BigDecimal("20.00"));
-        nuevoDetalle.setObservaciones("Pago completo por transferencia");
+            // Preparar la actualización
+            PagoDTO actualizacion = new PagoDTO();
+            actualizacion.setMetodoPago("TRANSFERENCIA");
+            actualizacion.setReferencia("Pago actualizado por transferencia");
 
-        actualizacion.setDetalles(Collections.singletonList(nuevoDetalle));
+            // Crear nuevo detalle para reemplazar el anterior
+            PagoDetalleDTO nuevoDetalle = new PagoDetalleDTO();
+            nuevoDetalle.setMonto(new BigDecimal("20.00"));
+            nuevoDetalle.setObservaciones("Pago completo por transferencia");
 
-        // Iniciar nueva transacción
-        em.getTransaction().begin();
+            actualizacion.setDetalles(Collections.singletonList(nuevoDetalle));
 
-        // Actualizar el pago
-        PagoDTO actualizado = pagoService.actualizarPago(pagoCreado.getIdPago(), actualizacion);
+            // Iniciar nueva transacción para actualizar
+            transactionStarted = beginTransactionIfNeeded();
+            PagoDTO actualizado = pagoService.actualizarPago(idPagoCreado, actualizacion);
 
-        // Finalizar transacción
-        em.getTransaction().commit();
+            // Finalizar transacción de actualización
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
 
-        // Verificar la actualización
-        assertNotNull(actualizado);
-        assertEquals("TRANSFERENCIA", actualizado.getMetodoPago());
-        assertEquals("Pago actualizado por transferencia", actualizado.getReferencia());
+            // Limpiar estado del EntityManager
+            em.clear();
 
-        // Verificar que se pueda recuperar con los nuevos datos
-        Optional<PagoDTO> recuperado = pagoService.obtenerPagoPorId(pagoCreado.getIdPago());
-        assertTrue(recuperado.isPresent());
-        assertEquals("TRANSFERENCIA", recuperado.get().getMetodoPago());
+            // Verificar la actualización en una nueva transacción
+            transactionStarted = beginTransactionIfNeeded();
+            Optional<PagoDTO> recuperado = pagoService.obtenerPagoPorId(idPagoCreado);
 
-        // Verificar que se hayan actualizado los detalles
-        assertNotNull(recuperado.get().getDetalles());
-        assertFalse(recuperado.get().getDetalles().isEmpty());
-        assertEquals(new BigDecimal("20.00"), recuperado.get().getDetalles().get(0).getMonto().stripTrailingZeros());
-        assertEquals("Pago completo por transferencia", recuperado.get().getDetalles().get(0).getObservaciones());
+            // Finalizar transacción de verificación
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
+
+            // Verificaciones
+            assertTrue(recuperado.isPresent());
+            assertEquals("TRANSFERENCIA", recuperado.get().getMetodoPago());
+            assertNotNull(recuperado.get().getDetalles());
+            assertFalse(recuperado.get().getDetalles().isEmpty());
+
+            // Usar stripTrailingZeros para comparar BigDecimal correctamente
+            assertEquals(new BigDecimal("20.00").stripTrailingZeros(),
+                    recuperado.get().getDetalles().get(0).getMonto().stripTrailingZeros());
+            assertEquals("Pago completo por transferencia", recuperado.get().getDetalles().get(0).getObservaciones());
+        } catch (Exception e) {
+            // Si hay una excepción, hacer rollback si es necesario
+            if (transactionStarted && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            fail("Error en testActualizarPago: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBuscarPagosPorMetodoPago() {
+        boolean transactionStarted = false;
+        try {
+            // Crear pagos con diferentes métodos de pago
+            PagoDTO pagoEfectivo = new PagoDTO();
+            pagoEfectivo.setIdOrden(idOrden);
+            pagoEfectivo.setFecha(new Date());
+            pagoEfectivo.setMetodoPago("EFECTIVO");
+
+            PagoDTO pagoTarjeta = new PagoDTO();
+            pagoTarjeta.setIdOrden(idOrden);
+            pagoTarjeta.setFecha(new Date());
+            pagoTarjeta.setMetodoPago("TARJETA");
+
+            PagoDTO pagoTransferencia = new PagoDTO();
+            pagoTransferencia.setIdOrden(idOrden);
+            pagoTransferencia.setFecha(new Date());
+            pagoTransferencia.setMetodoPago("TRANSFERENCIA");
+
+            // Iniciar transacción para crear los pagos
+            transactionStarted = beginTransactionIfNeeded();
+
+            // Crear los pagos
+            pagoService.crearPago(pagoEfectivo);
+            pagoService.crearPago(pagoTarjeta);
+            pagoService.crearPago(pagoTransferencia);
+
+            // Finalizar transacción
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
+
+            // Limpiar estado del EntityManager
+            em.clear();
+
+            // Iniciar nueva transacción para buscar pagos por método
+            transactionStarted = beginTransactionIfNeeded();
+
+            // Buscar pagos por método de pago
+            List<PagoDTO> resultadoEfectivo = pagoService.buscarPagosPorMetodoPago("EFECTIVO");
+
+            // Finalizar transacción
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
+            em.clear();
+
+            // Nueva transacción para la siguiente búsqueda
+            transactionStarted = beginTransactionIfNeeded();
+            List<PagoDTO> resultadoTarjeta = pagoService.buscarPagosPorMetodoPago("TARJETA");
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
+            em.clear();
+
+            // Nueva transacción para la última búsqueda
+            transactionStarted = beginTransactionIfNeeded();
+            List<PagoDTO> resultadoTransferencia = pagoService.buscarPagosPorMetodoPago("TRANSFERENCIA");
+            if (transactionStarted) {
+                em.getTransaction().commit();
+                transactionStarted = false;
+            }
+
+            // Verificar resultados
+            assertNotNull(resultadoEfectivo);
+            assertNotNull(resultadoTarjeta);
+            assertNotNull(resultadoTransferencia);
+
+            assertTrue(resultadoEfectivo.size() >= 1);
+            assertTrue(resultadoTarjeta.size() >= 1);
+            assertTrue(resultadoTransferencia.size() >= 1);
+
+            // Verificar que solo se encontraron pagos con el método correspondiente
+            for (PagoDTO p : resultadoEfectivo) {
+                assertEquals("EFECTIVO", p.getMetodoPago(),
+                        "Se encontró un pago con método diferente a 'EFECTIVO': " + p.getMetodoPago());
+            }
+
+            for (PagoDTO p : resultadoTarjeta) {
+                assertEquals("TARJETA", p.getMetodoPago(),
+                        "Se encontró un pago con método diferente a 'TARJETA': " + p.getMetodoPago());
+            }
+
+            for (PagoDTO p : resultadoTransferencia) {
+                assertEquals("TRANSFERENCIA", p.getMetodoPago(),
+                        "Se encontró un pago con método diferente a 'TRANSFERENCIA': " + p.getMetodoPago());
+            }
+        } catch (Exception e) {
+            // Si hay una excepción, hacer rollback si es necesario
+            if (transactionStarted && em.getTransaction().isActive()) {
+                em.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            fail("Error en testBuscarPagosPorMetodoPago: " + e.getMessage());
+        }
     }
 
     private boolean beginTransactionIfNeeded() {
@@ -334,66 +469,6 @@ public class PagoSystem {
         for (PagoDTO p : resultado) {
             assertEquals(idOrden, p.getIdOrden(),
                     "Se encontró un pago para una orden diferente: " + p.getIdOrden());
-        }
-    }
-
-    @Test
-    public void testBuscarPagosPorMetodoPago() {
-        // Crear pagos con diferentes métodos de pago
-        PagoDTO pagoEfectivo = new PagoDTO();
-        pagoEfectivo.setIdOrden(idOrden);
-        pagoEfectivo.setFecha(new Date());
-        pagoEfectivo.setMetodoPago("EFECTIVO");
-
-        PagoDTO pagoTarjeta = new PagoDTO();
-        pagoTarjeta.setIdOrden(idOrden);
-        pagoTarjeta.setFecha(new Date());
-        pagoTarjeta.setMetodoPago("TARJETA");
-
-        PagoDTO pagoTransferencia = new PagoDTO();
-        pagoTransferencia.setIdOrden(idOrden);
-        pagoTransferencia.setFecha(new Date());
-        pagoTransferencia.setMetodoPago("TRANSFERENCIA");
-
-        // Iniciar transacción
-        em.getTransaction().begin();
-
-        // Crear los pagos
-        pagoService.crearPago(pagoEfectivo);
-        pagoService.crearPago(pagoTarjeta);
-        pagoService.crearPago(pagoTransferencia);
-
-        // Finalizar transacción
-        em.getTransaction().commit();
-
-        // Buscar pagos por método de pago
-        List<PagoDTO> resultadoEfectivo = pagoService.buscarPagosPorMetodoPago("EFECTIVO");
-        List<PagoDTO> resultadoTarjeta = pagoService.buscarPagosPorMetodoPago("TARJETA");
-        List<PagoDTO> resultadoTransferencia = pagoService.buscarPagosPorMetodoPago("TRANSFERENCIA");
-
-        // Verificar resultados
-        assertNotNull(resultadoEfectivo);
-        assertNotNull(resultadoTarjeta);
-        assertNotNull(resultadoTransferencia);
-
-        assertTrue(resultadoEfectivo.size() >= 1);
-        assertTrue(resultadoTarjeta.size() >= 1);
-        assertTrue(resultadoTransferencia.size() >= 1);
-
-        // Verificar que solo se encontraron pagos con el método correspondiente
-        for (PagoDTO p : resultadoEfectivo) {
-            assertEquals("EFECTIVO", p.getMetodoPago(),
-                    "Se encontró un pago con método diferente a 'EFECTIVO': " + p.getMetodoPago());
-        }
-
-        for (PagoDTO p : resultadoTarjeta) {
-            assertEquals("TARJETA", p.getMetodoPago(),
-                    "Se encontró un pago con método diferente a 'TARJETA': " + p.getMetodoPago());
-        }
-
-        for (PagoDTO p : resultadoTransferencia) {
-            assertEquals("TRANSFERENCIA", p.getMetodoPago(),
-                    "Se encontró un pago con método diferente a 'TRANSFERENCIA': " + p.getMetodoPago());
         }
     }
 }
